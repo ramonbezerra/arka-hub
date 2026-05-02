@@ -7,7 +7,8 @@ from flask_migrate import Migrate
 
 from models import db, User
 
-from api.routes import api_blueprint
+from api.users import users_blueprint
+from api.members import members_blueprint
 from auth.routes import auth_blueprint
 
 app = Flask(__name__)
@@ -24,8 +25,9 @@ CORS(app)
 migrate = Migrate(app, db)  # Initialize Flask-Migrate with your app and db
 migrate.init_app(app, db)
 
-app.register_blueprint(api_blueprint, url_prefix='/api')
-app.register_blueprint(auth_blueprint, url_prefix='/auth')
+app.register_blueprint(users_blueprint, url_prefix='/api/users')
+app.register_blueprint(members_blueprint, url_prefix='/api/members')
+app.register_blueprint(auth_blueprint, url_prefix='/api/auth')
 
 with app.app_context():
     # Create an admin user if it doesn't exist

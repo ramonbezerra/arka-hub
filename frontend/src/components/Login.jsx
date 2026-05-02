@@ -19,7 +19,7 @@ const Login = () => {
 
     const handleLogin = ({ username, password }, { setSubmitting }) => {
         setSubmitting({ isValidating: true });
-        axios.post('http://localhost:5000/auth/login', { username, password })
+        axios.post('http://localhost:5000/api/auth/login', { username, password })
             .then(response => {
                 setToken(response.data.access_token);
                 setSubmitting({ isValidating: false });

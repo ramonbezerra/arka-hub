@@ -19,7 +19,7 @@ const Dashboard = () => {
         setLoading(true);
         setError(null);
         
-        axios.get("http://localhost:5000/api/profile")
+        axios.get("http://localhost:5000/api/users/profile")
             .then(res => {
                 setUserData(res.data);
                 setLoading(false);

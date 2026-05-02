@@ -3,9 +3,9 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import User, db
 from datetime import date
 
-api_blueprint = Blueprint('api', __name__)
+users_blueprint = Blueprint('users', __name__)
 
-@api_blueprint.route('/profile', methods=['GET'])
+@users_blueprint.route('/profile', methods=['GET'])
 @jwt_required()
 def get_user_info():
     current_user = get_jwt_identity()
@@ -32,7 +32,7 @@ def get_user_info():
         return jsonify(data), 200
     return jsonify(message="User not found"), 404
 
-@api_blueprint.route('/profile', methods=['PUT'])
+@users_blueprint.route('/profile', methods=['PUT'])
 @jwt_required()
 def update_profile():
     current_user = get_jwt_identity()
@@ -62,7 +62,7 @@ def update_profile():
     db.session.commit()
     return jsonify(message="Profile updated successfully"), 200
 
-@api_blueprint.route('/admin', methods=['GET'])
+@users_blueprint.route('/admin', methods=['GET'])
 @jwt_required()
 def get_administrators_list():
     current_user = get_jwt_identity()
@@ -77,7 +77,7 @@ def get_administrators_list():
         return jsonify(data), 200
     return jsonify(message="User not found"), 404
 
-@api_blueprint.route('/admin/<username>', methods=['PATCH'])
+@users_blueprint.route('/admin/<username>', methods=['PATCH'])
 @jwt_required()
 def enable_or_disable_admin(username):
     current_user = get_jwt_identity()

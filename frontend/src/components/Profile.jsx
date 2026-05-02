@@ -101,7 +101,7 @@ const Profile = () => {
     const [userData, setUserData] = useState(null);
 
     useEffect(() => {
-        axios.get('http://localhost:5000/api/profile')
+        axios.get('http://localhost:5000/api/users/profile')
             .then(response => {
                 // Aplica as máscaras nos dados recebidos do backend
                 const formattedData = {
@@ -127,7 +127,7 @@ const Profile = () => {
             phone: removeMask(values.phone)
         };
         
-        axios.put('http://localhost:5000/api/profile', cleanedValues)
+        axios.put('http://localhost:5000/api/users/profile', cleanedValues)
             .then(response => {
                 setSuccess(response.data.message);
                 setSubmitting(false);

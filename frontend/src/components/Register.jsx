@@ -21,7 +21,7 @@ const Register = () => {
 
     const handleRegister = ({ email, username, password }, { setSubmitting }) => {
         setSubmitting({ isValidating: true });
-        axios.post('http://localhost:5000/auth/register', { email, username, password })
+        axios.post('http://localhost:5000/api/auth/register', { email, username, password })
             .then(response => {
                 setSubmitting({ isValidating: false });
                 navigate('/login');

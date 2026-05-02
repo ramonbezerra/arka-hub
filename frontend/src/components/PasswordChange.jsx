@@ -25,7 +25,7 @@ const PasswordChange = () => {
             setError('Passwords do not match');
             return;
         }
-        axios.patch('http://localhost:5000/auth/change-password', { old_password, new_password })
+        axios.patch('http://localhost:5000/api/auth/change-password', { old_password, new_password })
             .then(response => {
                 setToken(response.data.access_token);
                 setSubmitting({ isValidating: false });

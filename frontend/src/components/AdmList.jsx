@@ -17,7 +17,7 @@ const AdmList = () => {
     }, [fetched])
 
     const fetchAdminList = (setAdmins, setFetched, setError) => {
-        axios.get('http://localhost:5000/api/admin')
+        axios.get('http://localhost:5000/api/users/admin')
             .then(response => {
                 setAdmins(response.data.admins);
                 setFetched(true);
@@ -29,7 +29,7 @@ const AdmList = () => {
     }
 
     const handleEnableOrDisable = (username) => {
-        axios.patch(`http://localhost:5000/api/admin/${username}`)
+        axios.patch(`http://localhost:5000/api/users/admin/${username}`)
             .then(response => {
                 setSuccess(response.data.message);
                 fetchAdminList(setAdmins, setFetched, setError);
