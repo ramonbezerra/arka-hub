@@ -2,7 +2,7 @@ const Home = () => {
     return (
         <div className="text-center">
             <h1>Home</h1>
-            <p>Welcome to the Gruadua Platform!</p>
+            <p>Welcome to the Arka Hub Platform!</p>
         </div>
     );
 };

@@ -13,9 +13,9 @@ const Navbar = () => {
     };
 
     return (
-        <nav className='items-center bg-gray-600 text-gray-100 p-4 mb-4 flex space-x-4'>
+        <nav className='items-center bg-green-700 text-gray-100 p-4 mb-4 flex space-x-4'>
             <ul className='flex flex-400 space-x-4'>
-                <li className='text-2xl text-center'><Link to="/">Gradua</Link></li>
+                <li className='text-2xl text-center'><Link to="/">Arka Hub</Link></li>
                 {token != null && jwtDecode(token).role === 'admin' && (
                     <>
                         <button><Link to="/dashboard">Dashboard</Link></button>

@@ -1,0 +1,50 @@
+# Python - backend folder
+# Ignore Python bytecode files
+/backend/__pycache__/
+/backend/**/__pycache__/*.pyc
+# Ignore Python egg files
+/backend/*.egg
+# Ignore Python distribution files
+/backend/*.egg-info
+# Ignore Python cache files
+/backend/.cache
+# Ignore Python log files
+/backend/*.log
+# Ignore Python test cache files
+/backend/.pytest_cache/
+.pytest_cache/
+# Ignore Python coverage files
+/backend/.coverage
+# Ignore Python virtual environment
+/backend/.venv
+# Ignore Python environment variables
+/backend/.env
+# Ignore SQL database files
+/backend/**/*.sqlite3
+/backend/**/*.db
+/backend/migrations/
+
+# React - frontend folder
+
+# Ignore Node.js modules
+/frontend/node_modules/
+# Ignore build artifacts
+/frontend/build
+# Ignore log files
+/frontend/*.log
+# Ignore environment variables
+/frontend/.env
+# Ignore cache files
+/frontend/.cache
+# Ignore coverage files
+/frontend/coverage/
+# Ignore temporary files
+/frontend/.tmp
+# Ignore lock files
+/frontend/package-lock.json 
+# Ignore Yarn lock files
+/frontend/yarn.lock
+# Ignore ESLint cache files
+/frontend/.eslintcache
+
+.vscode/
