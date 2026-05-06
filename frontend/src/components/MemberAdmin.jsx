@@ -3,6 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 import MaskedInput from 'react-text-mask';
+import { useTranslation } from 'react-i18next';
 
 // Função para remover máscaras
 const removeMask = (value) => {
@@ -99,19 +100,20 @@ const cpfMask = [
     /\d/
 ];
 
-const servicePreferencesOptions = [
-    { value: 'children', label: 'Children' },
-    { value: 'women', label: 'Women' },
-    { value: 'youth', label: 'Youth' },
-    { value: 'worship', label: 'Worship' },
-    { value: 'welcome', label: 'Welcome' }
-];
-
 const MemberAdmin = () => {
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const { t } = useTranslation();
+
+    const servicePreferencesOptions = [
+        { value: 'children', label: t('Children') },
+        { value: 'women', label: t('Women') },
+        { value: 'youth', label: t('Youth') },
+        { value: 'worship', label: t('Worship') },
+        { value: 'integration', label: t('Integration') }
+    ];
 
     const fetchMembers = async () => {
         setLoading(true);
@@ -164,7 +166,7 @@ const MemberAdmin = () => {
                             Member Management
                         </h1>
                     </div>
-                    
+
                     {error && <div className="text-red-500 mb-2 px-4">{error}</div>}
                     {success && <div className="text-green-500 mb-2 px-4">{success}</div>}
 
@@ -197,9 +199,9 @@ const MemberAdmin = () => {
                                             <label htmlFor="username" className="block font-medium mb-1">Username
                                                 <ErrorMessage name="username" component="span" className="text-red-500 ml-4" />
                                             </label>
-                                            <Field 
-                                                id="username" 
-                                                name="username" 
+                                            <Field
+                                                id="username"
+                                                name="username"
                                                 placeholder="Username"
                                                 className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                                             />
@@ -209,10 +211,10 @@ const MemberAdmin = () => {
                                             <label htmlFor="email" className="block font-medium mb-1">Email
                                                 <ErrorMessage name="email" component="span" className="text-red-500 ml-4" />
                                             </label>
-                                            <Field 
-                                                id="email" 
-                                                name="email" 
-                                                type="email" 
+                                            <Field
+                                                id="email"
+                                                name="email"
+                                                type="email"
                                                 placeholder="Email"
                                                 className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                                             />
@@ -222,10 +224,10 @@ const MemberAdmin = () => {
                                             <label htmlFor="password" className="block font-medium mb-1">Password
                                                 <ErrorMessage name="password" component="span" className="text-red-500 ml-4" />
                                             </label>
-                                            <Field 
-                                                id="password" 
-                                                name="password" 
-                                                type="password" 
+                                            <Field
+                                                id="password"
+                                                name="password"
+                                                type="password"
                                                 placeholder="Password"
                                                 className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                                             />
@@ -235,9 +237,9 @@ const MemberAdmin = () => {
                                             <label htmlFor="fullname" className="block font-medium mb-1">Full Name
                                                 <ErrorMessage name="fullname" component="span" className="text-red-500 ml-4" />
                                             </label>
-                                            <Field 
-                                                id="fullname" 
-                                                name="fullname" 
+                                            <Field
+                                                id="fullname"
+                                                name="fullname"
                                                 placeholder="Full Name"
                                                 className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                                             />
@@ -249,9 +251,9 @@ const MemberAdmin = () => {
                                             </label>
                                             <Field name="cpf">
                                                 {({ field }) => (
-                                                    <MaskedInput        
-                                                        {...field}  
-                                                        id="cpf"                               
+                                                    <MaskedInput
+                                                        {...field}
+                                                        id="cpf"
                                                         mask={cpfMask}
                                                         type="text"
                                                         className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
@@ -272,9 +274,9 @@ const MemberAdmin = () => {
                                             </label>
                                             <Field name="phone">
                                                 {({ field }) => (
-                                                    <MaskedInput        
-                                                        {...field}  
-                                                        id="phone"                               
+                                                    <MaskedInput
+                                                        {...field}
+                                                        id="phone"
                                                         mask={phoneMask}
                                                         type="text"
                                                         className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
@@ -328,9 +330,9 @@ const MemberAdmin = () => {
                                             <label htmlFor="dateOfBirth" className="block font-medium mb-1">Date of Birth
                                                 <ErrorMessage name="dateOfBirth" component="span" className="text-red-500 ml-4" />
                                             </label>
-                                            <Field 
-                                                id="dateOfBirth" 
-                                                name="dateOfBirth" 
+                                            <Field
+                                                id="dateOfBirth"
+                                                name="dateOfBirth"
                                                 type="date"
                                                 className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                                             />
@@ -340,9 +342,9 @@ const MemberAdmin = () => {
                                             <label htmlFor="postalCode" className="block font-medium mb-1">Postal Code
                                                 <ErrorMessage name="postalCode" component="span" className="text-red-500 ml-4" />
                                             </label>
-                                            <Field 
-                                                id="postalCode" 
-                                                name="postalCode" 
+                                            <Field
+                                                id="postalCode"
+                                                name="postalCode"
                                                 placeholder="e.g.: 99999999"
                                                 className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                                             />
@@ -352,9 +354,9 @@ const MemberAdmin = () => {
                                             <label htmlFor="address" className="block font-medium mb-1">Address
                                                 <ErrorMessage name="address" component="span" className="text-red-500 ml-4" />
                                             </label>
-                                            <Field 
-                                                id="address" 
-                                                name="address" 
+                                            <Field
+                                                id="address"
+                                                name="address"
                                                 placeholder="Enter address"
                                                 className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                                             />
@@ -364,9 +366,9 @@ const MemberAdmin = () => {
                                             <label htmlFor="city" className="block font-medium mb-1">City
                                                 <ErrorMessage name="city" component="span" className="text-red-500 ml-4" />
                                             </label>
-                                            <Field 
-                                                id="city" 
-                                                name="city" 
+                                            <Field
+                                                id="city"
+                                                name="city"
                                                 placeholder="Enter city"
                                                 className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                                             />
@@ -376,9 +378,9 @@ const MemberAdmin = () => {
                                             <label htmlFor="state" className="block font-medium mb-1">State
                                                 <ErrorMessage name="state" component="span" className="text-red-500 ml-4" />
                                             </label>
-                                            <Field 
-                                                id="state" 
-                                                name="state" 
+                                            <Field
+                                                id="state"
+                                                name="state"
                                                 placeholder="Enter state"
                                                 className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                                             />
@@ -388,9 +390,9 @@ const MemberAdmin = () => {
                                             <label htmlFor="country" className="block font-medium mb-1">Country
                                                 <ErrorMessage name="country" component="span" className="text-red-500 ml-4" />
                                             </label>
-                                            <Field 
-                                                id="country" 
-                                                name="country" 
+                                            <Field
+                                                id="country"
+                                                name="country"
                                                 placeholder="Enter country"
                                                 className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                                             />
@@ -414,8 +416,8 @@ const MemberAdmin = () => {
                                         </div>
                                     </div>
 
-                                    <button 
-                                        type="submit" 
+                                    <button
+                                        type="submit"
                                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
                                         disabled={isSubmitting}
                                     >

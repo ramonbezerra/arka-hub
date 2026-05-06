@@ -4,6 +4,7 @@ from flask import Flask, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
+from flask_babel import Babel, get_locale
 
 from models import db, User
 
@@ -15,6 +16,15 @@ app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'your-secret-key'  # Set a strong secret key
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'  # Use your database URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable track modifications to save resources
+app.config['BABEL_DEFAULT_LOCALE'] = 'en'
+app.config['BABEL_SUPPORTED_LOCALES'] = ['en', 'pt']
+
+babel = Babel(app)
+
+def get_locale_func():
+    return request.accept_languages.best_match(app.config['BABEL_SUPPORTED_LOCALES']) or app.config['BABEL_DEFAULT_LOCALE']
+
+app.config['BABEL_LOCALE_SELECTOR'] = get_locale_func
 
 jwt = JWTManager(app)  # Initialize JWTManager with your app
 
