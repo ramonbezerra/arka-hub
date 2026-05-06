@@ -55,6 +55,7 @@ const ProfileSchema = Yup.object().shape({
         })
         .required("Phone is required"),
     address: Yup.string().required("Address is required"),
+    servicePreferences: Yup.array().of(Yup.string()),
     city: Yup.string().required("City is required"),
     state: Yup.string().required("State is required"),
     postalCode: Yup.string().required("Postal code is required"),
@@ -95,6 +96,14 @@ const cpfMask = [
     /\d/
 ];
 
+const preferencesOptions = [
+    { value: 'children', label: 'Children' },
+    { value: 'women', label: 'Women' },
+    { value: 'youth', label: 'Youth' },
+    { value: 'worship', label: 'Worship' },
+    { value: 'welcome', label: 'Welcome' }
+];
+
 const Profile = () => {
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
@@ -107,7 +116,8 @@ const Profile = () => {
                 const formattedData = {
                     ...response.data,
                     cpf: applyCpfMask(response.data.cpf),
-                    phone: applyPhoneMask(response.data.phone)
+                    phone: applyPhoneMask(response.data.phone),
+                    servicePreferences: Array.isArray(response.data.servicePreferences) ? response.data.servicePreferences : (response.data.servicePreferences ? response.data.servicePreferences.split(',') : [])
                 };
                 setUserData(formattedData);
             })
@@ -124,7 +134,8 @@ const Profile = () => {
         const cleanedValues = {
             ...values,
             cpf: removeMask(values.cpf),
-            phone: removeMask(values.phone)
+            phone: removeMask(values.phone),
+            servicePreferences: values.servicePreferences || []
         };
         
         axios.put('http://localhost:5000/api/users/profile', cleanedValues)
@@ -180,7 +191,8 @@ const Profile = () => {
                                 city: userData?.city || '', 
                                 state: userData?.state || '', 
                                 country: userData?.country || '', 
-                                postalCode: userData?.postalCode || '' 
+                                postalCode: userData?.postalCode || '', 
+                                servicePreferences: userData?.servicePreferences || [] 
                             }} 
                             onSubmit={handleProfile} 
                             validationSchema={ProfileSchema}
@@ -377,6 +389,23 @@ const Profile = () => {
                                                 onChange={handleChange}
                                             />
                                         </label>
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <span className="block font-medium mb-2">Service preferences</span>
+                                        <div className="grid lg:grid-cols-3 gap-2">
+                                            {preferencesOptions.map(option => (
+                                                <label key={option.value} className="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2">
+                                                    <Field
+                                                        type="checkbox"
+                                                        name="servicePreferences"
+                                                        value={option.value}
+                                                        className="form-checkbox h-4 w-4 text-blue-600"
+                                                    />
+                                                    <span className="ml-2">{option.label}</span>
+                                                </label>
+                                            ))}
+                                        </div>
                                     </div>
                                     
                                     <button 

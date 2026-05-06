@@ -1,6 +1,6 @@
 from datetime import date
 import bcrypt
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
@@ -18,9 +18,35 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable track modificati
 
 jwt = JWTManager(app)  # Initialize JWTManager with your app
 
+# Handle preflight requests - skip JWT verification for OPTIONS
+@app.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        response = app.make_default_options_response()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Max-Age", "3600")
+        return response, 200
+
 db.init_app(app)  # Initialize SQLAlchemy with your app
 
-CORS(app)
+# Configure CORS with explicit settings to handle preflight requests
+CORS(
+    app,
+    resources={
+        r"/api/*": {
+            "origins": "*",
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "expose_headers": ["Content-Type"],
+            "max_age": 3600,
+            "send_wildcard": True
+        }
+    },
+    supports_credentials=False,
+    automatic_options=True
+)
 
 migrate = Migrate(app, db)  # Initialize Flask-Migrate with your app and db
 migrate.init_app(app, db)

@@ -20,6 +20,7 @@ const Navbar = () => {
                     <>
                         <button><Link to="/dashboard">Dashboard</Link></button>
                         <button><Link to="/admin-list">Administrators</Link></button>
+                        <button><Link to="/admin-members">Members</Link></button>
                     </>
                 )}
             </ul>

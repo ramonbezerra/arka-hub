@@ -13,15 +13,28 @@ class User(db.Model):
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     date_of_birth = db.Column(db.Date, nullable=False, default=date.today())
     cpf = db.Column(db.String(11), nullable=True)
+    discriminator = db.Column('type', db.String(50), nullable=False, server_default='user')
     gender = db.Column(db.String(10), nullable=False, default='')
     role = db.Column(db.String(50), nullable=False, default='user')
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
     last_login = db.Column(db.DateTime, nullable=True)
 
+    __mapper_args__ = {
+        'polymorphic_on': discriminator,
+        'polymorphic_identity': 'user'
+    }
+
     __table_args__ = (
         db.UniqueConstraint('cpf', name='uq_user_cpf'),
     )
+
+class Member(User):
+    service_preferences = db.Column(db.String(255), nullable=True, default='')
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'member'
+    }
 
 class Address(db.Model):
     id = db.Column(db.Integer, primary_key=True)

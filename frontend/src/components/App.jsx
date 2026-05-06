@@ -10,6 +10,7 @@ import Register from './Register';
 import Dashboard from './Dashboard';
 import Profile from './Profile';
 import AdmList from './AdmList';
+import MemberAdmin from './MemberAdmin';
 import PasswordChange from './PasswordChange';
 
 const App = () => {
@@ -26,6 +27,7 @@ const App = () => {
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/profile" element={<Profile />} />
                             <Route path="/admin-list" element={<AdmList />} />
+                            <Route path="/admin-members" element={<MemberAdmin />} />
                             <Route path="/change-password" element={<PasswordChange />} />
                         </Route>
                         <Route path="*" element={<div>NotFound</div>} />

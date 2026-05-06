@@ -20,8 +20,9 @@ def get_user_info():
             "fullname": user.full_name,
             "email": user.email,
             "phone": user.phone,
-            "dateOfBirth": user.date_of_birth,
+            "dateOfBirth": user.date_of_birth.isoformat() if user.date_of_birth else None,
             "cpf": user.cpf,
+            # "servicePreferences": user.service_preferences.split(',') if user.service_preferences else [],
             "gender": user.gender,
             "address": user.addresses[0].address if user.addresses else None,
             "city": user.addresses[0].city if user.addresses else None,
@@ -45,8 +46,18 @@ def update_profile():
     user.full_name = data.get('fullname', user.full_name)
     user.email = data.get('email', user.email)
     user.phone = data.get('phone', user.phone)
-    user.date_of_birth = date.fromisoformat(data.get('dateOfBirth', user.date_of_birth))
+
+    date_of_birth = data.get('dateOfBirth')
+    if date_of_birth:
+        user.date_of_birth = date.fromisoformat(date_of_birth) if isinstance(date_of_birth, str) else date_of_birth
+
     user.cpf = data.get('cpf', user.cpf)
+    service_preferences = data.get('servicePreferences')
+    if service_preferences is not None:
+        if isinstance(service_preferences, list):
+            user.service_preferences = ','.join(service_preferences)
+        else:
+            user.service_preferences = service_preferences
     user.gender = data.get('gender', user.gender)
     if not user.addresses:
         from models import Address
