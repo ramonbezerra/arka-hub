@@ -10,7 +10,8 @@ import Register from './Register';
 import Dashboard from './Dashboard';
 import Profile from './Profile';
 import AdmList from './AdmList';
-import MemberAdmin from './MemberAdmin';
+import MemberList from './members/MemberList';
+import MemberForm from './members/MemberForm';
 import PasswordChange from './PasswordChange';
 
 const App = () => {
@@ -26,8 +27,9 @@ const App = () => {
                         <Route element={<ProtectedRoute />}>
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/profile" element={<Profile />} />
-                            <Route path="/admin-list" element={<AdmList />} />
-                            <Route path="/admin-members" element={<MemberAdmin />} />
+                            <Route path="/administrators" element={<AdmList />} />
+                            <Route path="/members" element={<MemberList />} />
+                            <Route path="/enroll-member" element={<MemberForm />} />
                             <Route path="/change-password" element={<PasswordChange />} />
                         </Route>
                         <Route path="*" element={<div>NotFound</div>} />

@@ -100,8 +100,7 @@ const cpfMask = [
     /\d/
 ];
 
-const MemberAdmin = () => {
-    const [members, setMembers] = useState([]);
+const MemberForm = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -114,24 +113,6 @@ const MemberAdmin = () => {
         { value: 'worship', label: t('Worship') },
         { value: 'integration', label: t('Integration') }
     ];
-
-    const fetchMembers = async () => {
-        setLoading(true);
-        setError('');
-
-        try {
-            const response = await axios.get('http://localhost:5000/api/members');
-            setMembers(response.data.members || []);
-        } catch (err) {
-            setError(err.response?.data?.message || 'Unable to load members');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchMembers();
-    }, []);
 
     const handleSubmit = async (values, { resetForm, setSubmitting }) => {
         setError('');
@@ -149,7 +130,6 @@ const MemberAdmin = () => {
             await axios.post('http://localhost:5000/api/members', cleanedValues);
             setSuccess('Member enrolled successfully');
             resetForm();
-            fetchMembers();
         } catch (err) {
             setError(err.response?.data?.message || 'Unable to enroll member');
         } finally {
@@ -427,48 +407,10 @@ const MemberAdmin = () => {
                             )}
                         </Formik>
                     </div>
-
-                    <div className="p-4 border-t border-gray-300">
-                        <h2 className="text-2xl mb-4 text-gray-700">Member List</h2>
-                        {loading ? (
-                            <p className="text-gray-600">Loading members…</p>
-                        ) : (
-                            <div>
-                                {members.length === 0 ? (
-                                    <p className="text-gray-600">No members found.</p>
-                                ) : (
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full border-collapse border border-gray-300">
-                                            <thead className="bg-gray-200">
-                                                <tr>
-                                                    <th className="border border-gray-300 px-4 py-2 text-left">Username</th>
-                                                    <th className="border border-gray-300 px-4 py-2 text-left">Name</th>
-                                                    <th className="border border-gray-300 px-4 py-2 text-left">Email</th>
-                                                    <th className="border border-gray-300 px-4 py-2 text-left">Phone</th>
-                                                    <th className="border border-gray-300 px-4 py-2 text-left">Preferences</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {members.map((member) => (
-                                                    <tr key={member.username} className="hover:bg-gray-50">
-                                                        <td className="border border-gray-300 px-4 py-2">{member.username}</td>
-                                                        <td className="border border-gray-300 px-4 py-2">{member.fullname}</td>
-                                                        <td className="border border-gray-300 px-4 py-2">{member.email}</td>
-                                                        <td className="border border-gray-300 px-4 py-2">{member.phone}</td>
-                                                        <td className="border border-gray-300 px-4 py-2">{member.servicePreferences?.join(', ') || 'None'}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
                 </div>
             </div>
         </section>
     );
 };
 
-export default MemberAdmin;
+export default MemberForm;
