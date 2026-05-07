@@ -30,6 +30,7 @@ const App = () => {
                             <Route path="/administrators" element={<AdmList />} />
                             <Route path="/members" element={<MemberList />} />
                             <Route path="/enroll-member" element={<MemberForm />} />
+                            <Route path="/edit-member/:username" element={<MemberForm />} />
                             <Route path="/change-password" element={<PasswordChange />} />
                         </Route>
                         <Route path="*" element={<div>NotFound</div>} />

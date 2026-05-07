@@ -53,6 +53,7 @@ const MemberList = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preferences</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -63,6 +64,14 @@ const MemberList = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{member.email}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{member.phone}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{member.servicePreferences?.join(', ') || 'None'}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <Link
+                                                to={`/edit-member/${member.username}`}
+                                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                            >
+                                                Edit
+                                            </Link>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>

@@ -73,6 +73,83 @@ def enroll_member():
     db.session.commit()
     return jsonify(message="Member enrolled successfully"), 201
 
+@members_blueprint.route('/<username>', methods=['GET'])
+@jwt_required()
+def get_member(username):
+    claims = get_jwt()
+    if claims.get('role') != 'admin':
+        return jsonify(message="Admins only"), 403
+
+    member = Member.query.filter_by(username=username).first()
+    if not member:
+        return jsonify(message="Member not found"), 404
+
+    address = member.addresses[0] if member.addresses else None
+    return jsonify(member={
+        'username': member.username,
+        'fullname': member.full_name,
+        'email': member.email,
+        'phone': member.phone,
+        'cpf': member.cpf,
+        'gender': member.gender,
+        'dateOfBirth': member.date_of_birth.isoformat() if member.date_of_birth else None,
+        'servicePreferences': member.service_preferences.split(',') if member.service_preferences else [],
+        'address': address.address if address else None,
+        'city': address.city if address else None,
+        'state': address.state if address else None,
+        'country': address.country if address else None,
+        'postalCode': address.postal_code if address else None
+    }), 200
+
+@members_blueprint.route('/<username>', methods=['PATCH'])
+@jwt_required()
+def update_member(username):
+    claims = get_jwt()
+    if claims.get('role') != 'admin':
+        return jsonify(message="Admins only"), 403
+
+    member = Member.query.filter_by(username=username).first()
+    if not member:
+        return jsonify(message="Member not found"), 404
+
+    data = request.json
+    member.full_name = data.get('fullname', member.full_name)
+    member.email = data.get('email', member.email)
+    member.phone = data.get('phone', member.phone)
+
+    date_of_birth = data.get('dateOfBirth')
+    if date_of_birth:
+        member.date_of_birth = date.fromisoformat(date_of_birth) if isinstance(date_of_birth, str) else date_of_birth
+
+    member.cpf = data.get('cpf', member.cpf)
+    service_preferences = data.get('servicePreferences')
+    if service_preferences is not None:
+        if isinstance(service_preferences, list):
+            member.service_preferences = ','.join(service_preferences)
+        else:
+            member.service_preferences = service_preferences
+    member.gender = data.get('gender', member.gender)
+
+    password = data.get('password')
+    if password:
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        member.password = hashed_password
+
+    if not member.addresses:
+        new_address = Address(user_id=member.id)
+        db.session.add(new_address)
+        member.addresses.append(new_address)
+
+    if member.addresses:
+        member.addresses[0].address = data.get('address', member.addresses[0].address)
+        member.addresses[0].city = data.get('city', member.addresses[0].city)
+        member.addresses[0].state = data.get('state', member.addresses[0].state)
+        member.addresses[0].country = data.get('country', member.addresses[0].country)
+        member.addresses[0].postal_code = data.get('postalCode', member.addresses[0].postal_code)
+
+    db.session.commit()
+    return jsonify(message="Member updated successfully"), 200
+
 @members_blueprint.route('/profile', methods=['GET'])
 @jwt_required()
 def get_member_profile():

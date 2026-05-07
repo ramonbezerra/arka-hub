@@ -2,16 +2,15 @@ import { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
 import MaskedInput from 'react-text-mask';
 import { useTranslation } from 'react-i18next';
 
-// Função para remover máscaras
 const removeMask = (value) => {
     if (!value) return '';
     return value.replace(/\D/g, '');
 };
 
-// Função para aplicar máscara no CPF para exibição
 const applyCpfMask = (value) => {
     if (!value) return '';
     const cleaned = value.replace(/\D/g, '');
@@ -22,7 +21,6 @@ const applyCpfMask = (value) => {
         .replace(/(-\d{2})\d+?$/, '$1');
 };
 
-// Função para aplicar máscara no telefone para exibição
 const applyPhoneMask = (value) => {
     if (!value) return '';
     const cleaned = value.replace(/\D/g, '');
@@ -32,12 +30,13 @@ const applyPhoneMask = (value) => {
         .replace(/(-\d{4})\d+?$/, '$1');
 };
 
-const EnrollSchema = Yup.object().shape({
+const getValidationSchema = (isEditing) => Yup.object().shape({
     username: Yup.string().required('Username is required'),
     email: Yup.string().email('Invalid email').required('Email is required'),
-    password: Yup.string().required('Password is required'),
+    password: isEditing
+        ? Yup.string()
+        : Yup.string().required('Password is required'),
     fullname: Yup.string().required('Name is required'),
-    email: Yup.string().email('Invalid email').required('Email is required'),
     gender: Yup.string().required('Gender is required'),
     dateOfBirth: Yup.date()
         .required('Date of birth is required')
@@ -102,9 +101,65 @@ const cpfMask = [
 
 const MemberForm = () => {
     const [loading, setLoading] = useState(true);
+    const [memberData, setMemberData] = useState(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const { t } = useTranslation();
+    const navigate = useNavigate();
+    const { username } = useParams();
+    const isEditing = !!username; 
+    const [initialValues, setInitialValues] = useState({
+        username: '',
+        email: '',
+        password: '',
+        fullname: '',
+        phone: '',
+        cpf: '',
+        gender: '',
+        dateOfBirth: '',
+        address: '',
+        city: '',
+        state: '',
+        country: '',
+        postalCode: '',
+        servicePreferences: []
+    });
+
+    useEffect(() => {
+        if (isEditing) {
+            fetchMember();
+        } else {
+            setLoading(false);
+        }
+    }, [isEditing, username]);
+
+    const fetchMember = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/members/${username}`);
+            const member = response.data.member;
+            setMemberData(member);
+            setInitialValues({
+                username: member.username || '',
+                email: member.email || '',
+                password: '',
+                fullname: member.fullname || '',
+                phone: member.phone || '',
+                cpf: member.cpf || '',
+                gender: member.gender || '',
+                dateOfBirth: member.dateOfBirth || '',
+                address: member.address || '',
+                city: member.city || '',
+                state: member.state || '',
+                country: member.country || '',
+                postalCode: member.postalCode || '',
+                servicePreferences: member.servicePreferences || []
+            });
+            setLoading(false);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Unable to load member data');
+            setLoading(false);
+        }
+    };
 
     const servicePreferencesOptions = [
         { value: 'children', label: t('Children') },
@@ -126,12 +181,24 @@ const MemberForm = () => {
             servicePreferences: values.servicePreferences || []
         };
 
+
+        if (isEditing && !cleanedValues.password) {
+            delete cleanedValues.password;
+        }
+
         try {
-            await axios.post('http://localhost:5000/api/members', cleanedValues);
-            setSuccess('Member enrolled successfully');
-            resetForm();
+            if (isEditing) {
+                await axios.patch(`http://localhost:5000/api/members/${username}`, cleanedValues);
+                setSuccess('Member updated successfully');
+            } else {
+                await axios.post('http://localhost:5000/api/members', cleanedValues);
+                setSuccess('Member enrolled successfully');
+            }
+            setTimeout(() => {
+                navigate('/members');
+            }, 1000);
         } catch (err) {
-            setError(err.response?.data?.message || 'Unable to enroll member');
+            setError(err.response?.data?.message || 'Unable to save member');
         } finally {
             setSubmitting(false);
         }
@@ -150,263 +217,257 @@ const MemberForm = () => {
                     {error && <div className="text-red-500 mb-2 px-4">{error}</div>}
                     {success && <div className="text-green-500 mb-2 px-4">{success}</div>}
 
-                    <div className="p-4 border-t border-gray-300">
-                        <h2 className="text-2xl mb-4 text-gray-700">Enroll New Member</h2>
-                        <Formik
-                            initialValues={{
-                                username: '',
-                                email: '',
-                                password: '',
-                                fullname: '',
-                                phone: '',
-                                cpf: '',
-                                gender: '',
-                                dateOfBirth: '',
-                                address: '',
-                                city: '',
-                                state: '',
-                                country: '',
-                                postalCode: '',
-                                servicePreferences: []
-                            }}
-                            validationSchema={EnrollSchema}
-                            onSubmit={handleSubmit}
-                        >
-                            {({ values, isSubmitting, setFieldValue }) => (
-                                <Form className="space-y-4">
-                                    <div className="grid lg:grid-cols-2 gap-4">
-                                        <div className="mb-4">
-                                            <label htmlFor="username" className="block font-medium mb-1">Username
-                                                <ErrorMessage name="username" component="span" className="text-red-500 ml-4" />
-                                            </label>
-                                            <Field
-                                                id="username"
-                                                name="username"
-                                                placeholder="Username"
-                                                className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-                                            />
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <label htmlFor="email" className="block font-medium mb-1">Email
-                                                <ErrorMessage name="email" component="span" className="text-red-500 ml-4" />
-                                            </label>
-                                            <Field
-                                                id="email"
-                                                name="email"
-                                                type="email"
-                                                placeholder="Email"
-                                                className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-                                            />
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <label htmlFor="password" className="block font-medium mb-1">Password
-                                                <ErrorMessage name="password" component="span" className="text-red-500 ml-4" />
-                                            </label>
-                                            <Field
-                                                id="password"
-                                                name="password"
-                                                type="password"
-                                                placeholder="Password"
-                                                className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-                                            />
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <label htmlFor="fullname" className="block font-medium mb-1">Full Name
-                                                <ErrorMessage name="fullname" component="span" className="text-red-500 ml-4" />
-                                            </label>
-                                            <Field
-                                                id="fullname"
-                                                name="fullname"
-                                                placeholder="Full Name"
-                                                className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-                                            />
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <label htmlFor="cpf" className="block font-medium mb-1">CPF
-                                                <ErrorMessage name="cpf" component="span" className="text-red-500 ml-4" />
-                                            </label>
-                                            <Field name="cpf">
-                                                {({ field }) => (
-                                                    <MaskedInput
-                                                        {...field}
-                                                        id="cpf"
-                                                        mask={cpfMask}
-                                                        type="text"
-                                                        className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-                                                        placeholder="e.g.: 999.999.999-99"
-                                                        value={field.value || ""}
-                                                        onChange={(e) => {
-                                                            setFieldValue('cpf', e.target.value);
-                                                        }}
-                                                        onBlur={field.onBlur}
-                                                    />
-                                                )}
-                                            </Field>
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <label htmlFor="phone" className="block font-medium mb-1">Phone
-                                                <ErrorMessage name="phone" component="span" className="text-red-500 ml-4" />
-                                            </label>
-                                            <Field name="phone">
-                                                {({ field }) => (
-                                                    <MaskedInput
-                                                        {...field}
-                                                        id="phone"
-                                                        mask={phoneMask}
-                                                        type="text"
-                                                        className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-                                                        placeholder="e.g.: (99) 99999-9999"
-                                                        value={field.value || ""}
-                                                        onChange={(e) => {
-                                                            setFieldValue('phone', e.target.value);
-                                                        }}
-                                                        onBlur={field.onBlur}
-                                                    />
-                                                )}
-                                            </Field>
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <label htmlFor="gender" className="block font-medium mb-1">Gender
-                                                <ErrorMessage name="gender" component="span" className="text-red-500 ml-4" />
-                                            </label>
-                                            <div className="mt-2 space-x-4">
-                                                <label className="inline-flex items-center">
-                                                    <Field
-                                                        type="radio"
-                                                        className="form-radio"
-                                                        name="gender"
-                                                        value="male"
-                                                    />
-                                                    <span className="ml-2">Male</span>
+                    {loading ? (
+                        <div className="text-gray-600 p-4">Loading...</div>
+                    ) : (
+                        <div className="p-4 border-t border-gray-300">
+                            <h2 className="text-2xl mb-4 text-gray-700">
+                                {isEditing ? `Edit Member: ${username}` : 'Enroll New Member'}
+                            </h2>
+                            <Formik
+                                initialValues={memberData || initialValues}
+                                validationSchema={getValidationSchema(isEditing)}
+                                onSubmit={handleSubmit}
+                                enableReinitialize={true}
+                            >
+                                {({ values, isSubmitting, setFieldValue }) => (
+                                    <Form className="space-y-4">
+                                        <div className="grid lg:grid-cols-2 gap-4">
+                                            <div className="mb-4">
+                                                <label htmlFor="username" className="block font-medium mb-1">Username
+                                                    <ErrorMessage name="username" component="span" className="text-red-500 ml-4" />
                                                 </label>
-                                                <label className="inline-flex items-center">
-                                                    <Field
-                                                        type="radio"
-                                                        className="form-radio"
-                                                        name="gender"
-                                                        value="female"
-                                                    />
-                                                    <span className="ml-2">Female</span>
+                                                <Field
+                                                    id="username"
+                                                    name="username"
+                                                    placeholder="Username"
+                                                    disabled={isEditing}
+                                                    className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200 disabled:bg-gray-200 disabled:cursor-not-allowed"
+                                                />
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <label htmlFor="email" className="block font-medium mb-1">Email
+                                                    <ErrorMessage name="email" component="span" className="text-red-500 ml-4" />
                                                 </label>
-                                                <label className="inline-flex items-center">
-                                                    <Field
-                                                        type="radio"
-                                                        className="form-radio"
-                                                        name="gender"
-                                                        value="other"
-                                                    />
-                                                    <span className="ml-2">Other</span>
+                                                <Field
+                                                    id="email"
+                                                    name="email"
+                                                    type="email"
+                                                    placeholder="Email"
+                                                    className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                                                />
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <label htmlFor="password" className="block font-medium mb-1">
+                                                    Password {isEditing && <span className="text-gray-500">(leave empty to keep current)</span>}
+                                                    <ErrorMessage name="password" component="span" className="text-red-500 ml-4" />
                                                 </label>
+                                                <Field
+                                                    id="password"
+                                                    name="password"
+                                                    type="password"
+                                                    placeholder={isEditing ? "(optional)" : "Password"}
+                                                    className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                                                />
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <label htmlFor="fullname" className="block font-medium mb-1">Full Name
+                                                    <ErrorMessage name="fullname" component="span" className="text-red-500 ml-4" />
+                                                </label>
+                                                <Field
+                                                    id="fullname"
+                                                    name="fullname"
+                                                    placeholder="Full Name"
+                                                    className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                                                />
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <label htmlFor="cpf" className="block font-medium mb-1">CPF
+                                                    <ErrorMessage name="cpf" component="span" className="text-red-500 ml-4" />
+                                                </label>
+                                                <Field name="cpf">
+                                                    {({ field }) => (
+                                                        <MaskedInput
+                                                            {...field}
+                                                            id="cpf"
+                                                            mask={cpfMask}
+                                                            type="text"
+                                                            className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                                                            placeholder="e.g.: 999.999.999-99"
+                                                            value={field.value || ""}
+                                                            onChange={(e) => {
+                                                                setFieldValue('cpf', e.target.value);
+                                                            }}
+                                                            onBlur={field.onBlur}
+                                                        />
+                                                    )}
+                                                </Field>
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <label htmlFor="phone" className="block font-medium mb-1">Phone
+                                                    <ErrorMessage name="phone" component="span" className="text-red-500 ml-4" />
+                                                </label>
+                                                <Field name="phone">
+                                                    {({ field }) => (
+                                                        <MaskedInput
+                                                            {...field}
+                                                            id="phone"
+                                                            mask={phoneMask}
+                                                            type="text"
+                                                            className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                                                            placeholder="e.g.: (99) 99999-9999"
+                                                            value={field.value || ""}
+                                                            onChange={(e) => {
+                                                                setFieldValue('phone', e.target.value);
+                                                            }}
+                                                            onBlur={field.onBlur}
+                                                        />
+                                                    )}
+                                                </Field>
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <label htmlFor="gender" className="block font-medium mb-1">Gender
+                                                    <ErrorMessage name="gender" component="span" className="text-red-500 ml-4" />
+                                                </label>
+                                                <div className="mt-2 space-x-4">
+                                                    <label className="inline-flex items-center">
+                                                        <Field
+                                                            type="radio"
+                                                            className="form-radio"
+                                                            name="gender"
+                                                            value="male"
+                                                        />
+                                                        <span className="ml-2">Male</span>
+                                                    </label>
+                                                    <label className="inline-flex items-center">
+                                                        <Field
+                                                            type="radio"
+                                                            className="form-radio"
+                                                            name="gender"
+                                                            value="female"
+                                                        />
+                                                        <span className="ml-2">Female</span>
+                                                    </label>
+                                                    <label className="inline-flex items-center">
+                                                        <Field
+                                                            type="radio"
+                                                            className="form-radio"
+                                                            name="gender"
+                                                            value="other"
+                                                        />
+                                                        <span className="ml-2">Other</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <label htmlFor="dateOfBirth" className="block font-medium mb-1">Date of Birth
+                                                    <ErrorMessage name="dateOfBirth" component="span" className="text-red-500 ml-4" />
+                                                </label>
+                                                <Field
+                                                    id="dateOfBirth"
+                                                    name="dateOfBirth"
+                                                    type="date"
+                                                    className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                                                />
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <label htmlFor="postalCode" className="block font-medium mb-1">Postal Code
+                                                    <ErrorMessage name="postalCode" component="span" className="text-red-500 ml-4" />
+                                                </label>
+                                                <Field
+                                                    id="postalCode"
+                                                    name="postalCode"
+                                                    placeholder="e.g.: 99999999"
+                                                    className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                                                />
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <label htmlFor="address" className="block font-medium mb-1">Address
+                                                    <ErrorMessage name="address" component="span" className="text-red-500 ml-4" />
+                                                </label>
+                                                <Field
+                                                    id="address"
+                                                    name="address"
+                                                    placeholder="Enter address"
+                                                    className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                                                />
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <label htmlFor="city" className="block font-medium mb-1">City
+                                                    <ErrorMessage name="city" component="span" className="text-red-500 ml-4" />
+                                                </label>
+                                                <Field
+                                                    id="city"
+                                                    name="city"
+                                                    placeholder="Enter city"
+                                                    className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                                                />
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <label htmlFor="state" className="block font-medium mb-1">State
+                                                    <ErrorMessage name="state" component="span" className="text-red-500 ml-4" />
+                                                </label>
+                                                <Field
+                                                    id="state"
+                                                    name="state"
+                                                    placeholder="Enter state"
+                                                    className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                                                />
+                                            </div>
+
+                                            <div className="mb-4">
+                                                <label htmlFor="country" className="block font-medium mb-1">Country
+                                                    <ErrorMessage name="country" component="span" className="text-red-500 ml-4" />
+                                                </label>
+                                                <Field
+                                                    id="country"
+                                                    name="country"
+                                                    placeholder="Enter country"
+                                                    className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                                                />
                                             </div>
                                         </div>
 
                                         <div className="mb-4">
-                                            <label htmlFor="dateOfBirth" className="block font-medium mb-1">Date of Birth
-                                                <ErrorMessage name="dateOfBirth" component="span" className="text-red-500 ml-4" />
-                                            </label>
-                                            <Field
-                                                id="dateOfBirth"
-                                                name="dateOfBirth"
-                                                type="date"
-                                                className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-                                            />
+                                            <span className="block font-medium mb-2">Service Preferences</span>
+                                            <div className="grid lg:grid-cols-5 gap-2">
+                                                {servicePreferencesOptions.map((option) => (
+                                                    <label key={option.value} className="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2">
+                                                        <Field
+                                                            type="checkbox"
+                                                            name="servicePreferences"
+                                                            value={option.value}
+                                                            className="form-checkbox h-4 w-4 text-blue-600"
+                                                        />
+                                                        <span className="ml-2">{option.label}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
                                         </div>
 
-                                        <div className="mb-4">
-                                            <label htmlFor="postalCode" className="block font-medium mb-1">Postal Code
-                                                <ErrorMessage name="postalCode" component="span" className="text-red-500 ml-4" />
-                                            </label>
-                                            <Field
-                                                id="postalCode"
-                                                name="postalCode"
-                                                placeholder="e.g.: 99999999"
-                                                className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-                                            />
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <label htmlFor="address" className="block font-medium mb-1">Address
-                                                <ErrorMessage name="address" component="span" className="text-red-500 ml-4" />
-                                            </label>
-                                            <Field
-                                                id="address"
-                                                name="address"
-                                                placeholder="Enter address"
-                                                className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-                                            />
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <label htmlFor="city" className="block font-medium mb-1">City
-                                                <ErrorMessage name="city" component="span" className="text-red-500 ml-4" />
-                                            </label>
-                                            <Field
-                                                id="city"
-                                                name="city"
-                                                placeholder="Enter city"
-                                                className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-                                            />
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <label htmlFor="state" className="block font-medium mb-1">State
-                                                <ErrorMessage name="state" component="span" className="text-red-500 ml-4" />
-                                            </label>
-                                            <Field
-                                                id="state"
-                                                name="state"
-                                                placeholder="Enter state"
-                                                className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-                                            />
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <label htmlFor="country" className="block font-medium mb-1">Country
-                                                <ErrorMessage name="country" component="span" className="text-red-500 ml-4" />
-                                            </label>
-                                            <Field
-                                                id="country"
-                                                name="country"
-                                                placeholder="Enter country"
-                                                className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="mb-4">
-                                        <span className="block font-medium mb-2">Service Preferences</span>
-                                        <div className="grid lg:grid-cols-5 gap-2">
-                                            {servicePreferencesOptions.map((option) => (
-                                                <label key={option.value} className="inline-flex items-center bg-white border border-gray-300 rounded-md px-3 py-2">
-                                                    <Field
-                                                        type="checkbox"
-                                                        name="servicePreferences"
-                                                        value={option.value}
-                                                        className="form-checkbox h-4 w-4 text-blue-600"
-                                                    />
-                                                    <span className="ml-2">{option.label}</span>
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        type="submit"
-                                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
-                                        disabled={isSubmitting}
-                                    >
-                                        {isSubmitting ? 'Enrolling...' : 'Enroll Member'}
-                                    </button>
-                                </Form>
-                            )}
-                        </Formik>
-                    </div>
+                                        <button
+                                            type="submit"
+                                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
+                                            disabled={isSubmitting}
+                                        >
+                                            {isSubmitting ? (isEditing ? 'Updating...' : 'Enrolling...') : (isEditing ? 'Update Member' : 'Enroll Member')}
+                                        </button>
+                                    </Form>
+                                )}
+                            </Formik>
+                        </div>
+                    )}
                 </div>
             </div>
         </section>
