@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Icon } from '@iconify/react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -35,7 +36,7 @@ const MemberList = () => {
 
                     <button
                         type="button"
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5"
                     >
                         <Link to="/enroll-member">{t('Enroll Member')}</Link>
                     </button>
@@ -67,9 +68,11 @@ const MemberList = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             <Link
                                                 to={`/edit-member/${member.username}`}
-                                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                                className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                                                title="Edit member"
                                             >
-                                                Edit
+                                                <Icon icon="tabler:edit-filled" width={16} height={16} />
+                                                <span className="text-xs">Edit</span>
                                             </Link>
                                         </td>
                                     </tr>
