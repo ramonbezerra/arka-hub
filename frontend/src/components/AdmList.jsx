@@ -29,7 +29,7 @@ const AdmList = () => {
     }
 
     const handleEnableOrDisable = (username) => {
-        axios.patch(`http://localhost:5000/api/users/admin/${username}`)
+        axios.patch(`http://localhost:5000/api/users/${username}`)
             .then(response => {
                 setSuccess(response.data.message);
                 fetchAdminList(setAdmins, setFetched, setError);
