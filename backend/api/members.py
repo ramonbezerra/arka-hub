@@ -13,7 +13,22 @@ def list_members():
     if claims.get('role') != 'admin':
         return jsonify(message="Admins only"), 403
 
-    members = Member.query.order_by(Member.full_name).all()
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    
+    if page < 1:
+        page = 1
+    if per_page < 1 or per_page > 100:
+        per_page = 10
+
+    show_inactive = request.args.get('show_inactive', 'false').lower() == 'true'
+
+    query = Member.query.order_by(Member.full_name)
+    if not show_inactive:
+        query = query.filter(Member.is_active == True)
+
+    paginated_members = query.paginate(page=page, per_page=per_page, error_out=False)
+
     data = [{
         'username': member.username,
         'fullname': member.full_name,
@@ -24,8 +39,19 @@ def list_members():
         'dateOfBirth': member.date_of_birth.isoformat() if member.date_of_birth else None,
         'servicePreferences': member.service_preferences.split(',') if member.service_preferences else [],
         'isActive': member.is_active
-    } for member in members]
-    return jsonify(members=data), 200
+    } for member in paginated_members.items]
+    
+    return jsonify(
+        members=data,
+        pagination={
+            'total': paginated_members.total,
+            'pages': paginated_members.pages,
+            'current_page': page,
+            'per_page': per_page,
+            'has_next': paginated_members.has_next,
+            'has_prev': paginated_members.has_prev
+        }
+    ), 200
 
 @members_blueprint.route('/', methods=['POST'])
 @jwt_required()

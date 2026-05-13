@@ -21,8 +21,12 @@ i18n
       pt: {
         translation: {
           "Welcome": "Bem-vindo",
+          "Enroll Member": "Registrar Membro",
           "Login": "Entrar",
           "Register": "Registrar",
+          "Unjoin": "Desligar",
+          "Show Inactive Members": "Mostrar membros inativos",
+          "Logout": "Sair",
           "Username": "Nome de usuário",
           "Password": "Senha",
           "Enter your username": "Digite seu nome de usuário",
