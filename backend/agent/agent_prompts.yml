@@ -1,0 +1,39 @@
+member_enroll:
+  title: "Cadastro de membro"
+  description: |
+    Extraia dados de cadastro de membro a partir de um texto em português ou inglês.
+    Os dados podem usar rótulos em português ou inglês e devem ser retornados em formato normalizado.
+  expected_fields:
+    username:
+      labels: ["username", "usuário", "user", "login"]
+      description: "Nome de usuário único"
+    email:
+      labels: ["email", "e-mail"]
+      description: "Endereço de email"
+    password:
+      labels: ["password", "senha", "senha de acesso", "pass"]
+      description: "Senha para autenticação"
+    fullname:
+      labels: ["fullname", "nome completo", "nome"]
+      description: "Nome completo do membro"
+    phone:
+      labels: ["phone", "telefone", "tel"]
+      description: "Número de telefone com DDD"
+    cpf:
+      labels: ["cpf", "documento"]
+      description: "CPF do membro"
+    gender:
+      labels: ["gender", "gênero", "sex"]
+      description: "Gênero do membro"
+    servicePreferences:
+      labels: ["preferences", "preferências", "serviços"]
+      description: "Preferências de serviço separadas por vírgula"
+  prompt_template: |
+    Extraia de forma confiável os dados de cadastro de membro de um texto livre.
+    Use os rótulos fornecidos em português ou inglês e normalize o retorno para os campos:
+    username, email, password, fullname, phone, cpf, gender, servicePreferences.
+    O texto pode ser escrito de forma natural, como:
+      "Cadastre o membro João Silva, email joao@example.com, telefone 11987654321, CPF 12345678901,
+      gênero masculino, preferências children e worship"
+    Se username ou password não estiverem presentes, gere um username a partir do nome ou email e uma senha segura automática.
+    Retorne apenas os valores extraídos e gerados em formato estruturado.

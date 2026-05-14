@@ -1,9 +1,11 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../provider/authProvider";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 
 const Dashboard = () => {
     const { token, setToken } = useAuth();
+    const { t } = useTranslation();
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -32,9 +34,11 @@ const Dashboard = () => {
     }, [token]);
 
     return (
-        <div>
-            <h2>Dashboard</h2>
-            <p style={{color: error ? 'red' : 'black'}}>{userData?.username || error || 'Loading...'}</p>
+        <div className="space-y-8">
+            <div>
+                <h2 className="text-2xl font-bold mb-4">{t("Dashboard")}</h2>
+                <p style={{color: error ? 'red' : 'black'}}>{userData?.username || error || t("Loading...")}</p>
+            </div>
         </div>
     );
 };

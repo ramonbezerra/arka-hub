@@ -10,6 +10,7 @@ from models import db, User
 
 from api.users import users_blueprint
 from api.members import members_blueprint
+from api.agent import agent_blueprint
 from auth.routes import auth_blueprint
 
 app = Flask(__name__)
@@ -63,6 +64,7 @@ migrate.init_app(app, db)
 
 app.register_blueprint(users_blueprint, url_prefix='/api/users')
 app.register_blueprint(members_blueprint, url_prefix='/api/members')
+app.register_blueprint(agent_blueprint, url_prefix='/api/agent')
 app.register_blueprint(auth_blueprint, url_prefix='/api/auth')
 
 with app.app_context():
