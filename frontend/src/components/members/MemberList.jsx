@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Icon } from '@iconify/react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import MultiSelect from './MultiSelect';
 
 const MemberList = () => {
     const [members, setMembers] = useState([]);
@@ -13,6 +14,18 @@ const MemberList = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
     const [pagination, setPagination] = useState(null);
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+    const [filters, setFilters] = useState({
+        fullname: '',
+        email: '',
+        phone: '',
+        cpf: '',
+        gender: [],
+        servicePreferences: [],
+        dateOfBirth: ''
+    });
+    const [sortColumn, setSortColumn] = useState('username');
+    const [sortDirection, setSortDirection] = useState('asc');
     const { t } = useTranslation();
 
     const handleDeleteMember = (username) => {
@@ -29,17 +42,56 @@ const MemberList = () => {
             });
     }
 
+    const handleSort = (column) => {
+        if (sortColumn === column) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortColumn(column);
+            setSortDirection('asc');
+        }
+    };
+
+    const sortedMembers = [...members].sort((a, b) => {
+        let aValue = a[sortColumn];
+        let bValue = b[sortColumn];
+
+        if (sortColumn === 'servicePreferences') {
+            aValue = aValue ? aValue.join(', ') : '';
+            bValue = bValue ? bValue.join(', ') : '';
+        } else if (sortColumn === 'isActive') {
+            aValue = aValue ? 'Active' : 'Inactive';
+            bValue = bValue ? 'Active' : 'Inactive';
+        }
+
+        if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+    });
+
     const fetchMembers = async () => {
         setLoading(true);
         setError('');
 
         try {
+            const params = {
+                page: currentPage,
+                per_page: perPage,
+                show_inactive: showInactive,
+                search: '',
+                fullname: filters.fullname,
+                email: filters.email,
+                phone: filters.phone,
+                cpf: filters.cpf,
+                dateOfBirth: filters.dateOfBirth
+            };
+
+            // Handle multi-select filters by converting arrays to comma-separated strings
+            if (filters.gender.length > 0) params.gender = filters.gender.join(',');
+            if (filters.servicePreferences.length > 0) params.servicePreferences = filters.servicePreferences.join(',');
+            if (filters.status.length > 0) params.status = filters.status.join(',');
+
             const response = await axios.get('http://localhost:5000/api/members', {
-                params: {
-                    page: currentPage,
-                    per_page: perPage,
-                    show_inactive: showInactive
-                }
+                params
             });
             setMembers(response.data.members || []);
             setPagination(response.data.pagination);
@@ -52,7 +104,7 @@ const MemberList = () => {
 
     useEffect(() => {
         fetchMembers();
-    }, [currentPage, perPage, showInactive]);
+    }, [currentPage, perPage, showInactive, filters]);
 
     return (
         <section className="">
@@ -67,16 +119,121 @@ const MemberList = () => {
                         <Link to="/enroll-member">{t('Enroll Member')}</Link>
                     </button>
                 </div>
-                <div className="mb-4">
-                    <label className="flex items-center space-x-2">
-                        <input
-                            type="checkbox"
-                            checked={showInactive}
-                            onChange={(e) => setShowInactive(!showInactive)}
-                            className="form-checkbox"
-                        />
-                        <span>{t('Show Inactive Members')}</span>
-                    </label>
+                <div className="mb-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <button
+                            type="button"
+                            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                            className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-2"
+                        >
+                            <Icon icon={showAdvancedFilters ? "mdi:chevron-up" : "mdi:chevron-down"} />
+                            {showAdvancedFilters ? t('Hide Advanced Filters') : t('Show Advanced Filters')}
+                        </button>
+                        {(showInactive || Object.values(filters).some(v => v)) && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowInactive(false);
+                                    setFilters({
+                                        fullname: '',
+                                        email: '',
+                                        phone: '',
+                                        cpf: '',
+                                        gender: [],
+                                        servicePreferences: [],
+                                        status: [],
+                                        dateOfBirth: ''
+                                    });
+                                    setCurrentPage(1);
+                                }}
+                                className="text-red-600 hover:text-red-800 text-sm font-medium"
+                            >
+                                {t('Clear Filters')}
+                            </button>
+                        )}
+                    </div>
+                    {showAdvancedFilters && (
+                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 bg-gray-50 p-4 rounded-lg">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('Name')}</label>
+                                <input
+                                    type="text"
+                                    value={filters.fullname}
+                                    onChange={(e) => setFilters({...filters, fullname: e.target.value})}
+                                    className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('Email')}</label>
+                                <input
+                                    type="text"
+                                    value={filters.email}
+                                    onChange={(e) => setFilters({...filters, email: e.target.value})}
+                                    className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('Phone')}</label>
+                                <input
+                                    type="text"
+                                    value={filters.phone}
+                                    onChange={(e) => setFilters({...filters, phone: e.target.value})}
+                                    className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('CPF')}</label>
+                                <input
+                                    type="text"
+                                    value={filters.cpf}
+                                    onChange={(e) => setFilters({...filters, cpf: e.target.value})}
+                                    className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                />
+                            </div>
+                            <div className="flex items-center gap-2 rounded border border-gray-300 bg-white px-3 py-2">
+                                <input
+                                    type="checkbox"
+                                    checked={showInactive}
+                                    onChange={(e) => setShowInactive(e.target.checked)}
+                                    className="form-checkbox"
+                                />
+                                <label className="text-sm text-gray-700 mb-0">{t('Show Inactive Members')}</label>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('Date of Birth')}</label>
+                                <input
+                                    type="date"
+                                    value={filters.dateOfBirth}
+                                    onChange={(e) => setFilters({...filters, dateOfBirth: e.target.value})}
+                                    className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                />
+                            </div>
+                            <MultiSelect
+                                label={t('Gender')}
+                                options={[
+                                    { value: 'male', label: 'Masculino' },
+                                    { value: 'female', label: 'Feminino' },
+                                    { value: 'other', label: 'Outro' }
+                                ]}
+                                values={filters.gender}
+                                onChange={(newValues) => setFilters({...filters, gender: newValues})}
+                                placeholder={t('Select genders...')}
+                            />
+                            <MultiSelect
+                                label={t('Preferences')}
+                                options={[
+                                    { value: 'children', label: 'Children' },
+                                    { value: 'women', label: 'Women' },
+                                    { value: 'youth', label: 'Youth' },
+                                    { value: 'worship', label: 'Worship' },
+                                    { value: 'integration', label: 'Integration' }
+                                ]}
+                                values={filters.servicePreferences}
+                                onChange={(newValues) => setFilters({...filters, servicePreferences: newValues})}
+                                placeholder={t('Select preferences...')}
+                            />
+                        </div>
+                    )}
                 </div>
                 {success && <div className="text-green-500 mb-2">{success}</div>}
                 {error && <div className="text-red-500 mb-2">{error}</div>}
@@ -84,27 +241,57 @@ const MemberList = () => {
                 {!loading && !members.length && <div className="text-gray-600 mb-2">No members found.</div>}
                 {!loading && members.length > 0 && (
                     <div className="mb-4 overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
+                        <table className="w-full table-fixed divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preferences</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort('username')}>
+                                        <div className="flex items-center gap-1 whitespace-nowrap">
+                                            <span>Username</span>
+                                            {sortColumn === 'username' && (sortDirection === 'asc' ? <Icon icon="mdi:sort-ascending" /> : <Icon icon="mdi:sort-descending" />)}
+                                        </div>
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort('fullname')}>
+                                        <div className="flex items-center gap-1 whitespace-nowrap">
+                                            <span>Name</span>
+                                            {sortColumn === 'fullname' && (sortDirection === 'asc' ? <Icon icon="mdi:sort-ascending" /> : <Icon icon="mdi:sort-descending" />)}
+                                        </div>
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort('email')}>
+                                        <div className="flex items-center gap-1 whitespace-nowrap">
+                                            <span>Email</span>
+                                            {sortColumn === 'email' && (sortDirection === 'asc' ? <Icon icon="mdi:sort-ascending" /> : <Icon icon="mdi:sort-descending" />)}
+                                        </div>
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort('phone')}>
+                                        <div className="flex items-center gap-1 whitespace-nowrap">
+                                            <span>Phone</span>
+                                            {sortColumn === 'phone' && (sortDirection === 'asc' ? <Icon icon="mdi:sort-ascending" /> : <Icon icon="mdi:sort-descending" />)}
+                                        </div>
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort('servicePreferences')}>
+                                        <div className="flex items-center gap-1 whitespace-nowrap">
+                                            <span>Preferences</span>
+                                            {sortColumn === 'servicePreferences' && (sortDirection === 'asc' ? <Icon icon="mdi:sort-ascending" /> : <Icon icon="mdi:sort-descending" />)}
+                                        </div>
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer w-24" onClick={() => handleSort('isActive')}>
+                                        <div className="flex items-center gap-1 whitespace-nowrap">
+                                            <span>Status</span>
+                                            {sortColumn === 'isActive' && (sortDirection === 'asc' ? <Icon icon="mdi:sort-ascending" /> : <Icon icon="mdi:sort-descending" />)}
+                                        </div>
+                                    </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {members.map((member) => (
+                                {sortedMembers.map((member) => (
                                     <tr key={member.username} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{member.username}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{member.fullname}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{member.email}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{member.phone}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{member.servicePreferences?.join(', ') || 'None'}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{member.isActive ? 'Active' : 'Inactive'}</td>
+                                        <td className="px-6 py-4 w-24 max-w-[6rem] whitespace-nowrap overflow-hidden text-ellipsis text-sm text-gray-900">{member.isActive ? 'Active' : 'Inactive'}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             <Link
                                                 to={`/edit-member/${member.username}`}
