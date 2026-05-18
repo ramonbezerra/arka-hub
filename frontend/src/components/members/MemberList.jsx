@@ -5,6 +5,24 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import MultiSelect from './MultiSelect';
 
+const EMPTY_FILTERS = {
+    fullname: '',
+    email: '',
+    phone: '',
+    cpf: '',
+    gender: [],
+    servicePreferences: [],
+    status: [],
+    dateOfBirth: ''
+};
+
+const hasActiveFilters = (filters, showInactive) => {
+    if (showInactive) return true;
+    return Object.values(filters).some((value) =>
+        Array.isArray(value) ? value.length > 0 : Boolean(value)
+    );
+};
+
 const MemberList = () => {
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -15,15 +33,7 @@ const MemberList = () => {
     const [perPage, setPerPage] = useState(10);
     const [pagination, setPagination] = useState(null);
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-    const [filters, setFilters] = useState({
-        fullname: '',
-        email: '',
-        phone: '',
-        cpf: '',
-        gender: [],
-        servicePreferences: [],
-        dateOfBirth: ''
-    });
+    const [filters, setFilters] = useState(EMPTY_FILTERS);
     const [sortColumn, setSortColumn] = useState('username');
     const [sortDirection, setSortDirection] = useState('asc');
     const { t } = useTranslation();
@@ -129,21 +139,12 @@ const MemberList = () => {
                             <Icon icon={showAdvancedFilters ? "mdi:chevron-up" : "mdi:chevron-down"} />
                             {showAdvancedFilters ? t('Hide Advanced Filters') : t('Show Advanced Filters')}
                         </button>
-                        {(showInactive || Object.values(filters).some(v => v)) && (
+                        {hasActiveFilters(filters, showInactive) && (
                             <button
                                 type="button"
                                 onClick={() => {
                                     setShowInactive(false);
-                                    setFilters({
-                                        fullname: '',
-                                        email: '',
-                                        phone: '',
-                                        cpf: '',
-                                        gender: [],
-                                        servicePreferences: [],
-                                        status: [],
-                                        dateOfBirth: ''
-                                    });
+                                    setFilters(EMPTY_FILTERS);
                                     setCurrentPage(1);
                                 }}
                                 className="text-red-600 hover:text-red-800 text-sm font-medium"
@@ -153,85 +154,88 @@ const MemberList = () => {
                         )}
                     </div>
                     {showAdvancedFilters && (
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 bg-gray-50 p-4 rounded-lg">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('Name')}</label>
-                                <input
-                                    type="text"
-                                    value={filters.fullname}
-                                    onChange={(e) => setFilters({...filters, fullname: e.target.value})}
-                                    className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                                />
+                        <div>
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('Name')}</label>
+                                        <input
+                                            type="text"
+                                            value={filters.fullname}
+                                            onChange={(e) => setFilters({ ...filters, fullname: e.target.value })}
+                                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('Email')}</label>
+                                        <input
+                                            type="text"
+                                            value={filters.email}
+                                            onChange={(e) => setFilters({ ...filters, email: e.target.value })}
+                                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('Phone')}</label>
+                                        <input
+                                            type="text"
+                                            value={filters.phone}
+                                            onChange={(e) => setFilters({ ...filters, phone: e.target.value })}
+                                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('CPF')}</label>
+                                        <input
+                                            type="text"
+                                            value={filters.cpf}
+                                            onChange={(e) => setFilters({ ...filters, cpf: e.target.value })}
+                                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('Date of Birth')}</label>
+                                        <input
+                                            type="date"
+                                            value={filters.dateOfBirth}
+                                            onChange={(e) => setFilters({ ...filters, dateOfBirth: e.target.value })}
+                                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                        />
+                                    </div>
+                                    <MultiSelect
+                                        label={t('Gender')}
+                                        options={[
+                                            { value: 'male', label: 'Masculino' },
+                                            { value: 'female', label: 'Feminino' },
+                                        ]}
+                                        values={filters.gender}
+                                        onChange={(newValues) => setFilters({ ...filters, gender: newValues })}
+                                        placeholder={t('Select genders...')}
+                                    />
+                                    <MultiSelect
+                                        label={t('Preferences')}
+                                        options={[
+                                            { value: 'children', label: t('Children') },
+                                            { value: 'women', label: t('Women') },
+                                            { value: 'youth', label: t('Youth') },
+                                            { value: 'worship', label: t('Worship') },
+                                            { value: 'integration', label: t('Integration') }
+                                        ]}
+                                        values={filters.servicePreferences}
+                                        onChange={(newValues) => setFilters({ ...filters, servicePreferences: newValues })}
+                                        placeholder={t('Select preferences...')}
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={showInactive}
+                                        onChange={(e) => setShowInactive(e.target.checked)}
+                                        className="form-checkbox"
+                                    />
+                                    <label className="text-sm text-gray-700 mb-0">{t('Show Inactive Members')}</label>
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('Email')}</label>
-                                <input
-                                    type="text"
-                                    value={filters.email}
-                                    onChange={(e) => setFilters({...filters, email: e.target.value})}
-                                    className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('Phone')}</label>
-                                <input
-                                    type="text"
-                                    value={filters.phone}
-                                    onChange={(e) => setFilters({...filters, phone: e.target.value})}
-                                    className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('CPF')}</label>
-                                <input
-                                    type="text"
-                                    value={filters.cpf}
-                                    onChange={(e) => setFilters({...filters, cpf: e.target.value})}
-                                    className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                                />
-                            </div>
-                            <div className="flex items-center gap-2 rounded border border-gray-300 bg-white px-3 py-2">
-                                <input
-                                    type="checkbox"
-                                    checked={showInactive}
-                                    onChange={(e) => setShowInactive(e.target.checked)}
-                                    className="form-checkbox"
-                                />
-                                <label className="text-sm text-gray-700 mb-0">{t('Show Inactive Members')}</label>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('Date of Birth')}</label>
-                                <input
-                                    type="date"
-                                    value={filters.dateOfBirth}
-                                    onChange={(e) => setFilters({...filters, dateOfBirth: e.target.value})}
-                                    className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                                />
-                            </div>
-                            <MultiSelect
-                                label={t('Gender')}
-                                options={[
-                                    { value: 'male', label: 'Masculino' },
-                                    { value: 'female', label: 'Feminino' },
-                                    { value: 'other', label: 'Outro' }
-                                ]}
-                                values={filters.gender}
-                                onChange={(newValues) => setFilters({...filters, gender: newValues})}
-                                placeholder={t('Select genders...')}
-                            />
-                            <MultiSelect
-                                label={t('Preferences')}
-                                options={[
-                                    { value: 'children', label: 'Children' },
-                                    { value: 'women', label: 'Women' },
-                                    { value: 'youth', label: 'Youth' },
-                                    { value: 'worship', label: 'Worship' },
-                                    { value: 'integration', label: 'Integration' }
-                                ]}
-                                values={filters.servicePreferences}
-                                onChange={(newValues) => setFilters({...filters, servicePreferences: newValues})}
-                                placeholder={t('Select preferences...')}
-                            />
                         </div>
                     )}
                 </div>
