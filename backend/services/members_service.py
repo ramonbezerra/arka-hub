@@ -3,6 +3,35 @@ import bcrypt
 from sqlalchemy import or_
 from models import Member, Address, db
 
+_ADDRESS_FIELD_MAP = {
+    'address': 'address',
+    'city': 'city',
+    'state': 'state',
+    'country': 'country',
+    'postalCode': 'postal_code',
+}
+_REQUIRED_ADDRESS_KEYS = tuple(_ADDRESS_FIELD_MAP.keys())
+
+
+def _apply_address_update(member, data):
+    """Update an existing address or create one when all required fields are provided."""
+    if member.addresses:
+        addr = member.addresses[0]
+        for data_key, column in _ADDRESS_FIELD_MAP.items():
+            if data_key in data and data[data_key] is not None:
+                setattr(addr, column, data[data_key])
+    elif all(data.get(k) for k in _REQUIRED_ADDRESS_KEYS):
+        db.session.add(
+            Address(
+                user_id=member.id,
+                address=data['address'],
+                city=data['city'],
+                state=data['state'],
+                country=data['country'],
+                postal_code=data['postalCode'],
+            )
+        )
+
 
 def list_members(page=1, per_page=10, show_inactive=False, search='', filters=None):
     """
@@ -75,7 +104,7 @@ def list_members(page=1, per_page=10, show_inactive=False, search='', filters=No
                 if status_filters:
                     query = query.filter(or_(*status_filters))
 
-    if filters.get('dateOfBirth'):
+    if filters and filters.get('dateOfBirth'):
         try:
             dob = date.fromisoformat(filters['dateOfBirth'])
             query = query.filter(Member.date_of_birth == dob)
@@ -221,17 +250,7 @@ def update_member(username, data):
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         member.password = hashed_password
 
-    if not member.addresses:
-        new_address = Address(user_id=member.id)
-        db.session.add(new_address)
-        member.addresses.append(new_address)
-
-    if member.addresses:
-        member.addresses[0].address = data.get('address', member.addresses[0].address)
-        member.addresses[0].city = data.get('city', member.addresses[0].city)
-        member.addresses[0].state = data.get('state', member.addresses[0].state)
-        member.addresses[0].country = data.get('country', member.addresses[0].country)
-        member.addresses[0].postal_code = data.get('postalCode', member.addresses[0].postal_code)
+    _apply_address_update(member, data)
 
     db.session.commit()
     return {'message': 'Member updated successfully'}
@@ -292,17 +311,7 @@ def update_member_info(username, data):
     
     member.gender = data.get('gender', member.gender)
 
-    if not member.addresses:
-        new_address = Address(user_id=member.id)
-        db.session.add(new_address)
-        member.addresses.append(new_address)
-
-    if member.addresses:
-        member.addresses[0].address = data.get('address', member.addresses[0].address)
-        member.addresses[0].city = data.get('city', member.addresses[0].city)
-        member.addresses[0].state = data.get('state', member.addresses[0].state)
-        member.addresses[0].country = data.get('country', member.addresses[0].country)
-        member.addresses[0].postal_code = data.get('postalCode', member.addresses[0].postal_code)
+    _apply_address_update(member, data)
 
     db.session.commit()
     return {'message': 'Member profile updated successfully'}
