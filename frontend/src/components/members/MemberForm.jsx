@@ -1,15 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
-import axios from 'axios';
+import axios from '../../api/client';
+import { getMemberFormValidationSchema } from '../../utils/validationSchemas';
+import { removeMask } from '../../utils/masks';
 import { useNavigate, useParams } from 'react-router-dom';
 import MaskedInput from 'react-text-mask';
 import { useTranslation } from 'react-i18next';
-
-const removeMask = (value) => {
-    if (!value) return '';
-    return value.replace(/\D/g, '');
-};
 
 const applyCpfMask = (value) => {
     if (!value) return '';
@@ -29,40 +25,6 @@ const applyPhoneMask = (value) => {
         .replace(/(\d{5})(\d)/, '$1-$2')
         .replace(/(-\d{4})\d+?$/, '$1');
 };
-
-const getValidationSchema = (isEditing) => Yup.object().shape({
-    username: Yup.string().required('Username is required'),
-    email: Yup.string().email('Invalid email').required('Email is required'),
-    password: isEditing
-        ? Yup.string()
-        : Yup.string().required('Password is required'),
-    fullname: Yup.string().required('Name is required'),
-    gender: Yup.string().required('Gender is required'),
-    dateOfBirth: Yup.date()
-        .required('Date of birth is required')
-        .min(new Date(1900, 0, 1), 'Date of birth must be after 01/01/1900')
-        .max(new Date(), 'Date of birth must be before today\'s date'),
-    cpf: Yup.string()
-        .transform(value => removeMask(value))
-        .test('cpf-length', 'CPF must have 11 digits', value => {
-            const cleaned = value ? value.replace(/\D/g, '') : '';
-            return cleaned.length === 11;
-        })
-        .required('CPF is required'),
-    phone: Yup.string()
-        .transform(value => removeMask(value))
-        .test('phone-length', 'Phone must have 11 digits', value => {
-            const cleaned = value ? value.replace(/\D/g, '') : '';
-            return cleaned.length === 11;
-        })
-        .required('Phone is required'),
-    address: Yup.string().required('Address is required'),
-    servicePreferences: Yup.array().of(Yup.string()),
-    city: Yup.string().required('City is required'),
-    state: Yup.string().required('State is required'),
-    country: Yup.string().required('Country is required'),
-    postalCode: Yup.string().required('Postal code is required'),
-});
 
 const phoneMask = [
     "(",
@@ -135,7 +97,7 @@ const MemberForm = () => {
 
     const fetchMember = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/members/${username}`);
+            const response = await axios.get(`/api/members/${username}`);
             const member = response.data.member;
             setMemberData(member);
             setInitialValues({
@@ -188,10 +150,10 @@ const MemberForm = () => {
 
         try {
             if (isEditing) {
-                await axios.patch(`http://localhost:5000/api/members/${username}`, cleanedValues);
+                await axios.patch(`/api/members/${username}`, cleanedValues);
                 setSuccess('Member updated successfully');
             } else {
-                await axios.post('http://localhost:5000/api/members', cleanedValues);
+                await axios.post('/api/members', cleanedValues);
                 setSuccess('Member enrolled successfully');
             }
             setTimeout(() => {
@@ -226,7 +188,7 @@ const MemberForm = () => {
                             </h2>
                             <Formik
                                 initialValues={memberData || initialValues}
-                                validationSchema={getValidationSchema(isEditing)}
+                                validationSchema={getMemberFormValidationSchema(isEditing)}
                                 onSubmit={handleSubmit}
                                 enableReinitialize={true}
                             >

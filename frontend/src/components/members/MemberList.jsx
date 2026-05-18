@@ -1,27 +1,10 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../../api/client';
 import { Icon } from '@iconify/react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import MultiSelect from './MultiSelect';
-
-const EMPTY_FILTERS = {
-    fullname: '',
-    email: '',
-    phone: '',
-    cpf: '',
-    gender: [],
-    servicePreferences: [],
-    status: [],
-    dateOfBirth: ''
-};
-
-const hasActiveFilters = (filters, showInactive) => {
-    if (showInactive) return true;
-    return Object.values(filters).some((value) =>
-        Array.isArray(value) ? value.length > 0 : Boolean(value)
-    );
-};
+import { EMPTY_FILTERS, hasActiveFilters } from '../../utils/memberFilters';
 
 const MemberList = () => {
     const [members, setMembers] = useState([]);
@@ -39,7 +22,7 @@ const MemberList = () => {
     const { t } = useTranslation();
 
     const handleDeleteMember = (username) => {
-        axios.patch(`http://localhost:5000/api/users/${username}`)
+        axios.patch(`/api/users/${username}`)
             .then(response => {
                 setSuccess(response.data.message);
                 setTimeout(() => setSuccess(null), 3000);
@@ -100,7 +83,7 @@ const MemberList = () => {
             if (filters.servicePreferences.length > 0) params.servicePreferences = filters.servicePreferences.join(',');
             if (filters.status.length > 0) params.status = filters.status.join(',');
 
-            const response = await axios.get('http://localhost:5000/api/members', {
+            const response = await axios.get('/api/members', {
                 params
             });
             setMembers(response.data.members || []);

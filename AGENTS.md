@@ -34,10 +34,12 @@ This repository contains a React frontend and Flask backend for the Arka Hub app
 - from repository root: `cd frontend`
 - install dependencies: `npm install`
 - run: `npm start`
+- run tests: `npm test` (watch) or `npm run test:ci` (single run with coverage)
+- optional API base URL: set `REACT_APP_API_URL` (defaults to `http://localhost:5000`)
 
 ## Notes for AI agents
 - `README.md` is business/user-story documentation, not implementation instructions.
-- There are no existing test files. Do not assume a test suite exists.
+- Backend tests live under `backend/tests/` (pytest). Frontend tests use Jest via `react-scripts` under `frontend/src/**/__tests__/`.
 - Be careful with hardcoded secrets and database URI in `backend/app.py`.
 - Do not use `react-scripts eject` unless there is no other way to implement the change.
 - If adding backend configuration, prefer `backend/config.py` rather than increasing hardcoded values in `app.py`.

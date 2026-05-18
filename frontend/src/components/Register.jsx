@@ -1,19 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Formik, ErrorMessage, Field } from 'formik';
-import * as Yup from 'yup';
-import axios from 'axios';
-
-const RegisterSchema = Yup.object().shape({
-    email: Yup.string().email('Invalid email').required('Email is required'),
-    username: Yup.string()
-        .required('Username is required'),
-    password: Yup.string()
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/, 'Password must contain at least one big letter, one small letter, one special character and one number')    
-        .min(8, 'Password must be at least 8 characters')
-        .max(120, 'Password must not exceed 120 characters')
-        .required('Password is required')
-});
+import axios from '../api/client';
+import { RegisterSchema } from '../utils/validationSchemas';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -21,7 +10,7 @@ const Register = () => {
 
     const handleRegister = ({ email, username, password }, { setSubmitting }) => {
         setSubmitting({ isValidating: true });
-        axios.post('http://localhost:5000/api/auth/register', { email, username, password })
+        axios.post('/api/auth/register', { email, username, password })
             .then(response => {
                 setSubmitting({ isValidating: false });
                 navigate('/login');

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../api/client";
 import { useState, useEffect } from "react";
 import { useAuth } from "../provider/authProvider";
 import { jwtDecode } from "jwt-decode";
@@ -17,7 +17,7 @@ const AdmList = () => {
     }, [fetched])
 
     const fetchAdminList = (setAdmins, setFetched, setError) => {
-        axios.get('http://localhost:5000/api/users/admin')
+        axios.get('/api/users/admin')
             .then(response => {
                 setAdmins(response.data.admins);
                 setFetched(true);
@@ -29,7 +29,7 @@ const AdmList = () => {
     }
 
     const handleEnableOrDisable = (username) => {
-        axios.patch(`http://localhost:5000/api/users/${username}`)
+        axios.patch(`/api/users/${username}`)
             .then(response => {
                 setSuccess(response.data.message);
                 fetchAdminList(setAdmins, setFetched, setError);

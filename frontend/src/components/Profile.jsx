@@ -1,15 +1,10 @@
 import { useEffect, useState } from "react";
 import { Formik, Field, ErrorMessage } from "formik";
 import { Link } from "react-router-dom";
-import * as Yup from "yup";
-import axios from "axios";
+import axios from "../api/client";
+import { ProfileSchema } from "../utils/validationSchemas";
+import { removeMask } from "../utils/masks";
 import MaskedInput from "react-text-mask";
-
-// Função para remover máscaras
-const removeMask = (value) => {
-    if (!value) return '';
-    return value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
-};
 
 // Função para aplicar máscara no CPF para exibição
 const applyCpfMask = (value) => {
@@ -31,35 +26,6 @@ const applyPhoneMask = (value) => {
         .replace(/(\d{5})(\d)/, '$1-$2')
         .replace(/(-\d{4})\d+?$/, '$1');
 };
-
-const ProfileSchema = Yup.object().shape({
-    fullname: Yup.string().required("Name is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    gender: Yup.string().required("Gender is required"),
-    dateOfBirth: Yup.date()
-        .required("Date of birth is required")
-        .min(new Date(1900, 0, 1), "Date of birth must be after 01/01/1900")
-        .max(new Date(), "Date of birth must be before today's date"),
-    cpf: Yup.string()
-        .transform(value => removeMask(value)) // Remove a máscara para validação
-        .test('cpf-length', 'CPF must have 11 digits', value => {
-            const cleaned = value ? value.replace(/\D/g, '') : '';
-            return cleaned.length === 11;
-        })
-        .required("CPF is required"),
-    phone: Yup.string()
-        .transform(value => removeMask(value)) // Remove a máscara para validação
-        .test('phone-length', 'Phone must have 11 digits', value => {
-            const cleaned = value ? value.replace(/\D/g, '') : '';
-            return cleaned.length === 11;
-        })
-        .required("Phone is required"),
-    address: Yup.string().required("Address is required"),
-    servicePreferences: Yup.array().of(Yup.string()),
-    city: Yup.string().required("City is required"),
-    state: Yup.string().required("State is required"),
-    postalCode: Yup.string().required("Postal code is required"),
-});
 
 const phoneMask = [
     "(",
@@ -110,7 +76,7 @@ const Profile = () => {
     const [userData, setUserData] = useState(null);
 
     useEffect(() => {
-        axios.get('http://localhost:5000/api/users/profile')
+        axios.get('/api/users/profile')
             .then(response => {
                 // Aplica as máscaras nos dados recebidos do backend
                 const formattedData = {
@@ -138,7 +104,7 @@ const Profile = () => {
             servicePreferences: values.servicePreferences || []
         };
         
-        axios.put('http://localhost:5000/api/users/profile', cleanedValues)
+        axios.put('/api/users/profile', cleanedValues)
             .then(response => {
                 setSuccess(response.data.message);
                 setSubmitting(false);

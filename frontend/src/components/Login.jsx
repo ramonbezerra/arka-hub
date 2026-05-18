@@ -2,16 +2,9 @@ import { useAuth } from '../provider/authProvider';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Formik, ErrorMessage, Field } from 'formik';
-import * as Yup from 'yup';
-import axios from 'axios';
+import axios from '../api/client';
+import { LoginSchema } from '../utils/validationSchemas';
 import { useTranslation } from 'react-i18next';
-
-const LoginSchema = Yup.object().shape({
-    username: Yup.string()
-        .required('Username is required'),
-    password: Yup.string().min(4, 'Password must be at least 4 characters').max(120, 'Password must not exceed 120 characters')
-        .required('Password is required')
-});
 
 const Login = () => {
     const { setToken } = useAuth();
@@ -21,7 +14,7 @@ const Login = () => {
 
     const handleLogin = ({ username, password }, { setSubmitting }) => {
         setSubmitting({ isValidating: true });
-        axios.post('http://localhost:5000/api/auth/login', { username, password })
+        axios.post('/api/auth/login', { username, password })
             .then(response => {
                 setToken(response.data.access_token);
                 setSubmitting({ isValidating: false });
