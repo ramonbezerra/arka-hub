@@ -1,6 +1,6 @@
-# ArkaHub: User Stories Detalhadas
+# ArkaHub: Gestão Inteligente de Igrejas 
 
-Este documento apresenta as User Stories atualizadas para o sistema ArkaHub, organizadas por épicos (módulos) e perfis de usuário. Cada User Story segue o formato padrão: "Como [perfil], eu quero [ação] para que [valor/objetivo]". As atualizações refletem a capacidade de gerenciar membros voluntários em múltiplos departamentos/ministérios e a otimização inteligente de agendas via IA.
+Abaixo você pode conferir as User Stories atualizadas para o sistema ArkaHub, organizadas por épicos (módulos) e perfis de usuário. Cada User Story segue o formato padrão: "Como [perfil], eu quero [ação] para que [valor/objetivo]". As atualizações refletem a capacidade de gerenciar membros voluntários em múltiplos departamentos/ministérios e a otimização inteligente de agendas via IA.
 
 ## Épico 1: Gestão de Membresia e Comunicação
 
