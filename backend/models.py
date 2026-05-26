@@ -48,3 +48,32 @@ class Address(db.Model):
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
     user = db.relationship('User', backref=db.backref('addresses', lazy=True))
+
+class Ministry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), unique=True, nullable=False)
+    description = db.Column(db.Text, nullable=False, default='')
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+    memberships = db.relationship(
+        'MinistryMembership',
+        back_populates='ministry',
+        lazy=True,
+        cascade='all, delete-orphan',
+    )
+
+class MinistryMembership(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ministry_id = db.Column(db.Integer, db.ForeignKey('ministry.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    role = db.Column(db.String(20), nullable=False, default='volunteer')
+    joined_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    ministry = db.relationship('Ministry', back_populates='memberships')
+    user = db.relationship('User', backref=db.backref('ministry_memberships', lazy=True))
+
+    __table_args__ = (
+        db.UniqueConstraint('ministry_id', 'user_id', name='uq_ministry_membership'),
+    )

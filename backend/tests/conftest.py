@@ -5,7 +5,7 @@ import pytest
 from flask_jwt_extended import create_access_token
 
 from app import create_app
-from models import Member, User, db
+from models import Member, Ministry, MinistryMembership, User, db
 
 
 @pytest.fixture
@@ -91,3 +91,59 @@ def auth_headers(user):
         additional_claims={'role': user.role, 'is_active': user.is_active},
     )
     return {'Authorization': f'Bearer {token}'}
+
+
+def create_ministry(name='Louvor', description='Ministry of worship', *, is_active=True):
+    ministry = Ministry(name=name, description=description, is_active=is_active)
+    db.session.add(ministry)
+    db.session.commit()
+    return ministry
+
+
+def add_ministry_membership(ministry, user, role='volunteer'):
+    membership = MinistryMembership(
+        ministry_id=ministry.id,
+        user_id=user.id,
+        role=role,
+    )
+    db.session.add(membership)
+    db.session.commit()
+    return membership
+
+
+@pytest.fixture
+def ministry(app):
+    return create_ministry()
+
+
+@pytest.fixture
+def other_ministry(app):
+    return create_ministry(name='Mídia', description='Media ministry')
+
+
+@pytest.fixture
+def ministry_leader_user(app, ministry):
+    user = create_user(
+        'leader1',
+        'leaderpass',
+        role='member',
+        as_member=True,
+        email='leader1@example.com',
+        full_name='Ministry Leader',
+    )
+    add_ministry_membership(ministry, user, role='leader')
+    return user
+
+
+@pytest.fixture
+def ministry_volunteer_user(app, ministry):
+    user = create_user(
+        'volunteer1',
+        'volpass',
+        role='member',
+        as_member=True,
+        email='volunteer1@example.com',
+        full_name='Ministry Volunteer',
+    )
+    add_ministry_membership(ministry, user, role='volunteer')
+    return user
