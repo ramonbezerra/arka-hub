@@ -71,7 +71,9 @@ Abaixo você pode conferir as User Stories atualizadas para o sistema ArkaHub, o
 - Como **Administrador Financeiro/Secretário(a)**, eu quero cadastrar e divulgar eventos da igreja para atrair participantes.
 - Como **Administrador Financeiro/Secretário(a)**, eu quero gerenciar inscrições e pagamentos online para facilitar a participação nos eventos.
 - Como **Administrador Financeiro/Secretário(a)**, eu quero registrar a presença dos participantes e gerar certificados para controle e reconhecimento.
-- Como **Administrador Financeiro/Secretário(a)**, eu quero controlar a equipe de apoio dos eventos para garantir a organização.
+- Como **Administrador Financeiro/Secretário(a)**, eu quero controlar a equipe de apoio dos eventos para garantir a organização com escalas.
+- Como **Administrador Financeiro/Secretário(a)**, eu quero receber sugestões de escala da equipe de apoio de cada evento a partir das preferências dos membros.
+- Como **Administrador Financeiro/Secretário(a)**, eu quero engajar automaticamente a coordenação dos ministérios envolvidos nos eventos.
 
 ### Membro da Igreja
 
