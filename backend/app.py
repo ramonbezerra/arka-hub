@@ -9,6 +9,7 @@ from flask_migrate import Migrate
 
 from api.members import members_blueprint
 from api.ministries import ministries_blueprint
+from api.schedules import schedules_blueprint
 from api.users import users_blueprint
 from auth.routes import auth_blueprint
 from config import config_by_name
@@ -70,6 +71,7 @@ def create_app(config_name=None):
     app.register_blueprint(users_blueprint, url_prefix='/api/users')
     app.register_blueprint(members_blueprint, url_prefix='/api/members')
     app.register_blueprint(ministries_blueprint, url_prefix='/api/ministries')
+    app.register_blueprint(schedules_blueprint, url_prefix='/api/schedules')
     app.register_blueprint(auth_blueprint, url_prefix='/api/auth')
 
     return app

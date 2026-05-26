@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
 
 from models import User
-from services.ministries_auth import user_can_access_ministry
+from services.ministries_auth import user_can_access_ministry, user_can_manage_ministry
 from services.ministries_service import (
     add_ministry_member as service_add_ministry_member,
     create_ministry as service_create_ministry,
@@ -11,6 +11,10 @@ from services.ministries_service import (
     list_ministry_members as service_list_ministry_members,
     remove_ministry_member as service_remove_ministry_member,
     update_ministry as service_update_ministry,
+)
+from services.schedules_service import (
+    create_schedule as service_create_schedule,
+    list_ministry_schedules as service_list_ministry_schedules,
 )
 
 ministries_blueprint = Blueprint('ministries', __name__)
@@ -144,3 +148,48 @@ def remove_ministry_member(ministry_id, user_id):
     if result.get('error'):
         return jsonify(message=result['error']), result.get('code', 404)
     return jsonify(**result), 200
+
+
+@ministries_blueprint.route('/<int:ministry_id>/schedules', methods=['GET'])
+@jwt_required()
+def list_ministry_schedules(ministry_id):
+    claims = get_jwt()
+    user = _current_user()
+    if not user:
+        return jsonify(message='User not found'), 404
+
+    result = service_list_ministry_schedules(
+        ministry_id,
+        user_id=user.id,
+        is_admin=_is_admin(claims),
+        status=request.args.get('status'),
+    )
+    if result.get('error'):
+        return jsonify(message=result['error']), result.get('code', 404)
+    return jsonify(**result), 200
+
+
+@ministries_blueprint.route('/<int:ministry_id>/schedules', methods=['POST'])
+@jwt_required()
+def create_ministry_schedule(ministry_id):
+    claims = get_jwt()
+    user = _current_user()
+    if not user:
+        return jsonify(message='User not found'), 404
+
+    if not user_can_manage_ministry(
+        user.id, ministry_id, is_admin=_is_admin(claims)
+    ):
+        return jsonify(message='Forbidden'), 403
+
+    data = request.json or {}
+    result = service_create_schedule(
+        ministry_id,
+        user.id,
+        title=data.get('title'),
+        start_date=data.get('startDate'),
+        end_date=data.get('endDate'),
+    )
+    if result.get('error'):
+        return jsonify(message=result['error']), result.get('code', 400)
+    return jsonify(**result), 201

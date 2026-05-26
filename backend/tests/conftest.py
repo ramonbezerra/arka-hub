@@ -1,11 +1,20 @@
-from datetime import date
+from datetime import date, datetime
 
 import bcrypt
 import pytest
 from flask_jwt_extended import create_access_token
 
 from app import create_app
-from models import Member, Ministry, MinistryMembership, User, db
+from models import (
+    Member,
+    Ministry,
+    MinistryMembership,
+    ScheduleSlot,
+    ServiceSchedule,
+    SlotAssignment,
+    User,
+    db,
+)
 
 
 @pytest.fixture
@@ -147,3 +156,76 @@ def ministry_volunteer_user(app, ministry):
     )
     add_ministry_membership(ministry, user, role='volunteer')
     return user
+
+
+def create_schedule(
+    ministry,
+    created_by,
+    *,
+    title='June Schedule',
+    start_date=None,
+    end_date=None,
+    status='draft',
+):
+    start = start_date or date(2026, 6, 1)
+    end = end_date or date(2026, 6, 30)
+    schedule = ServiceSchedule(
+        ministry_id=ministry.id,
+        title=title,
+        start_date=start,
+        end_date=end,
+        status=status,
+        created_by_id=created_by.id,
+    )
+    db.session.add(schedule)
+    db.session.commit()
+    return schedule
+
+
+def create_slot(
+    schedule,
+    *,
+    title='Sunday Service',
+    role_label='Projection',
+    starts_at=None,
+    ends_at=None,
+):
+    starts = starts_at or datetime(2026, 6, 7, 9, 0, 0)
+    ends = ends_at or datetime(2026, 6, 7, 12, 0, 0)
+    slot = ScheduleSlot(
+        schedule_id=schedule.id,
+        title=title,
+        role_label=role_label,
+        starts_at=starts,
+        ends_at=ends,
+    )
+    db.session.add(slot)
+    db.session.commit()
+    return slot
+
+
+def assign_volunteer(slot, user, *, status='assigned'):
+    assignment = SlotAssignment(
+        slot_id=slot.id,
+        user_id=user.id,
+        status=status,
+        assigned_at=datetime.utcnow(),
+    )
+    db.session.add(assignment)
+    db.session.commit()
+    return assignment
+
+
+@pytest.fixture
+def draft_schedule(app, ministry, ministry_leader_user):
+    return create_schedule(ministry, ministry_leader_user)
+
+
+@pytest.fixture
+def published_schedule(app, ministry, ministry_leader_user, ministry_volunteer_user):
+    schedule = create_schedule(ministry, ministry_leader_user, status='draft')
+    slot = create_slot(schedule)
+    assign_volunteer(slot, ministry_volunteer_user)
+    schedule.status = 'published'
+    db.session.commit()
+    return schedule

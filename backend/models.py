@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -76,4 +76,60 @@ class MinistryMembership(db.Model):
 
     __table_args__ = (
         db.UniqueConstraint('ministry_id', 'user_id', name='uq_ministry_membership'),
+    )
+
+class ServiceSchedule(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ministry_id = db.Column(db.Integer, db.ForeignKey('ministry.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=False)
+    status = db.Column(db.String(20), nullable=False, default='draft')
+    created_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+    ministry = db.relationship('Ministry', backref=db.backref('schedules', lazy=True))
+    created_by = db.relationship('User', backref=db.backref('created_schedules', lazy=True))
+    slots = db.relationship(
+        'ScheduleSlot',
+        back_populates='schedule',
+        lazy=True,
+        cascade='all, delete-orphan',
+        order_by='ScheduleSlot.starts_at',
+    )
+
+class ScheduleSlot(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    schedule_id = db.Column(db.Integer, db.ForeignKey('service_schedule.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    role_label = db.Column(db.String(100), nullable=False, default='')
+    starts_at = db.Column(db.DateTime, nullable=False)
+    ends_at = db.Column(db.DateTime, nullable=False)
+    location = db.Column(db.String(200), nullable=False, default='')
+    notes = db.Column(db.Text, nullable=False, default='')
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+    schedule = db.relationship('ServiceSchedule', back_populates='slots')
+    assignments = db.relationship(
+        'SlotAssignment',
+        back_populates='slot',
+        lazy=True,
+        cascade='all, delete-orphan',
+    )
+
+class SlotAssignment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    slot_id = db.Column(db.Integer, db.ForeignKey('schedule_slot.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default='assigned')
+    assigned_at = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+    slot = db.relationship('ScheduleSlot', back_populates='assignments')
+    user = db.relationship('User', backref=db.backref('slot_assignments', lazy=True))
+
+    __table_args__ = (
+        db.UniqueConstraint('slot_id', 'user_id', name='uq_slot_assignment'),
     )
