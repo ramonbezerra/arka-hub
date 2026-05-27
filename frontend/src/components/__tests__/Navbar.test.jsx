@@ -29,6 +29,8 @@ describe('Navbar', () => {
         });
 
         expect(screen.getByRole('link', { name: 'Profile' })).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'Ministry Schedules' })).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'My Schedules' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Logout' })).toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Members' })).not.toBeInTheDocument();
     });
@@ -42,6 +44,9 @@ describe('Navbar', () => {
         expect(screen.getByRole('link', { name: 'Dashboard' })).toBeInTheDocument();
         expect(screen.getByRole('link', { name: 'Administrators' })).toBeInTheDocument();
         expect(screen.getByRole('link', { name: 'Members' })).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'Ministries' })).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'Ministry Schedules' })).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'My Schedules' })).toBeInTheDocument();
     });
 
     it('clears token and navigates home on logout', async () => {
