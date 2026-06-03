@@ -18,6 +18,7 @@ import MinistryScheduleEditor from './schedules/MinistryScheduleEditor';
 import MySchedules from './schedules/MySchedules';
 import MinistryList from './ministries/MinistryList';
 import MinistryMembersEditor from './ministries/MinistryMembersEditor';
+import MinistryScheduleList from './schedules/MinistryScheduleList';
 
 const App = () => {
     return (
@@ -39,8 +40,12 @@ const App = () => {
                             <Route path="/change-password" element={<PasswordChange />} />
                             <Route path="/ministry-schedules" element={<MinistrySchedulesHub />} />
                             <Route
-                                path="/ministries/:ministryId/schedules"
+                                path="/ministries/:ministryId/schedules/:scheduleId"
                                 element={<MinistryScheduleEditor />}
+                            />
+                            <Route
+                                path="/ministries/:ministryId/schedules"
+                                element={<MinistryScheduleList />}
                             />
                             <Route path="/my-schedules" element={<MySchedules />} />
                             <Route path="/ministries" element={<MinistryList />} />

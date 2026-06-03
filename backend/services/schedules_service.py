@@ -9,6 +9,7 @@ from models import (
     db,
 )
 from services.ministries_auth import user_belongs_to_ministry, user_can_manage_ministry
+from services.ministries_service import _serialize_ministry
 
 SCHEDULE_STATUS_DRAFT = 'draft'
 SCHEDULE_STATUS_PUBLISHED = 'published'
@@ -200,7 +201,7 @@ def list_ministry_schedules(
         )
 
     schedules = query.all()
-    return {'schedules': [_serialize_schedule(s) for s in schedules]}
+    return {'ministry': _serialize_ministry(ministry), 'schedules': [_serialize_schedule(s) for s in schedules]}
 
 
 def create_schedule(ministry_id, created_by_id, title, start_date, end_date):

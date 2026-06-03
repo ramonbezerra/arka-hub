@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from '../../api/client';
+import { Icon } from '@iconify/react';
 
 const MySchedules = () => {
     const [items, setItems] = useState([]);
@@ -35,44 +36,79 @@ const MySchedules = () => {
 
     return (
         <section>
-            <h2>My schedules</h2>
-            {loading && <p>Loading assignments...</p>}
-            {error && <p className="text-red-500">{error}</p>}
-            {!loading && !error && items.length === 0 && (
-                <p>You do not have assignments yet.</p>
-            )}
-            {!loading && items.length > 0 && (
-                <ul className="space-y-2">
-                    {items.map((item) => (
-                        <li key={item.assignment.id} className="border rounded p-2">
-                            <p>
-                                <strong>{item.schedule.title}</strong> - {item.slot.title}
-                            </p>
-                            <p>Status: {item.assignment.status}</p>
-                            {item.assignment.status === 'assigned' && (
-                                <div className="space-x-2">
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            updateStatus(item.assignment.id, 'confirmed')
-                                        }
-                                    >
-                                        Confirm
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            updateStatus(item.assignment.id, 'declined')
-                                        }
-                                    >
-                                        Decline
-                                    </button>
-                                </div>
-                            )}
-                        </li>
-                    ))}
-                </ul>
-            )}
+            <div className="lg:w-[88%] sm:w-[88%] w-full mx-auto shadow-2xl p-4 rounded-xl h-fit self-center bg-gray-100">
+                <div className="items-center text-gray-600 p-4 flex justify-between">
+                    <h1 className="lg:text-3xl md:text-2xl text-xl">My schedules</h1>
+                </div>
+                {loading && <div className="text-gray-600 mb-2">Loading assignments...</div>}
+                {error && <div className="text-red-500 mb-2">{error}</div>}
+                {!loading && !error && items.length === 0 && (
+                    <div className="text-gray-600 mb-2">You do not have assignments yet.</div>
+                )}
+                {!loading && !error && items.length > 0 && (
+                    <div className="mb-4 overflow-x-auto">
+                        <table className="w-full table-fixed divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Schedule</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slot</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {items.map((item) => (
+                                    <tr key={item.assignment.id}>
+                                        <td className="px-6 py-4 whitespace-nowrap">{item.schedule.title}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{item.slot.title}</td>
+                                        {item.assignment.status === 'assigned' && (
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                                                    Assigned
+                                                </span>
+                                            </td>
+                                        )}
+                                        {item.assignment.status === 'confirmed' && (
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                                    Confirmed
+                                                </span>
+                                            </td>
+                                        )}
+                                        {item.assignment.status === 'declined' && (
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                                                    Declined
+                                                </span>
+                                            </td>
+                                        )}
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {item.assignment.status === 'assigned' && (
+                                                <div className="space-x-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => updateStatus(item.assignment.id, 'confirmed')}
+                                                        className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 ml-2"
+                                                    >
+                                                        <Icon icon="tabler:check-filled" width={16} height={16} />
+                                                        <span className="text-xs">Confirm</span>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => updateStatus(item.assignment.id, 'declined')}
+                                                        className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 ml-2"
+                                                    >
+                                                        <Icon icon="tabler:x-filled" width={16} height={16} />
+                                                        <span className="text-xs">Decline</span>
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </td></tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
         </section>
     );
 };

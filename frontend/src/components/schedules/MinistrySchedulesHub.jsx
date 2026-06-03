@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from '../../api/client';
+import { Icon } from '@iconify/react';
 
 const MinistrySchedulesHub = () => {
     const [ministries, setMinistries] = useState([]);
@@ -25,23 +26,46 @@ const MinistrySchedulesHub = () => {
 
     return (
         <section>
-            <h2>Ministry schedules</h2>
-            {loading && <p>Loading ministries...</p>}
-            {error && <p className="text-red-500">{error}</p>}
-            {!loading && !error && ministries.length === 0 && (
-                <p>You are not assigned to any ministry.</p>
-            )}
-            {!loading && ministries.length > 0 && (
-                <ul className="space-y-2">
-                    {ministries.map((ministry) => (
-                        <li key={ministry.id}>
-                            <Link to={`/ministries/${ministry.id}/schedules`}>
-                                {ministry.name}
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
-            )}
+            <div className="lg:w-[88%] sm:w-[88%] w-full mx-auto shadow-2xl p-4 rounded-xl h-fit self-center bg-gray-100">
+                <div className="items-center text-gray-600 p-4 flex justify-between">
+                    <h1 className="lg:text-3xl md:text-2xl text-xl">Ministry schedules</h1>
+                </div>
+                {loading && <div className="text-gray-600 mb-2">Loading ministries...</div>}
+                {error && <div className="text-red-500 mb-2">{error}</div>}
+                {!loading && !error && ministries.length === 0 && (
+                    <div className="text-gray-600 mb-2">You are not assigned to any ministry.</div>
+                )}
+                {!loading && !error && ministries.length > 0 && (
+                    <div className="mb-4 overflow-x-auto">
+                        <table className="w-full table-fixed divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ministry</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {ministries.map((ministry) => (
+                                    <tr key={ministry.id}>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <Link to={`/ministries/${ministry.id}/schedules`}>
+                                                {ministry.name}
+                                            </Link>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <Link to={`/ministries/${ministry.id}/schedules`}>
+                                                <button type="button" className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5">
+                                                    <Icon icon="tabler:calendar-stats" width={16} height={16} />
+                                                    <span>View Schedules</span>
+                                                </button>
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
         </section>
     );
 };
