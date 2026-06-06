@@ -20,7 +20,6 @@ const MinistryScheduleEditor = () => {
     const [members, setMembers] = useState([]);
     const [selectedSchedule, setSelectedSchedule] = useState(null);
     const [showSlotFormModal, setShowSlotFormModal] = useState(false);
-    const [slotForm, setSlotForm] = useState(initialSlotForm);
     const [assignmentUsername, setAssignmentUsername] = useState('');
     const [statusMessage, setStatusMessage] = useState('');
     const [error, setError] = useState('');
@@ -62,42 +61,42 @@ const MinistryScheduleEditor = () => {
         load();
     }, [scheduleId]);
 
-    const handleCreateSlot = async (e) => {
-        e.preventDefault();
+    const handleCreateSlot = async ( values, { setSubmitting }) => {
         if (!scheduleId) return;
+        setSubmitting(true);
         try {
             setError('');
             const payload = {
-                ...slotForm,
-                startsAt: datetimeLocalToIso(slotForm.startsAt),
-                endsAt: datetimeLocalToIso(slotForm.endsAt),
+                ...values,
+                startsAt: datetimeLocalToIso(values.startsAt),
+                endsAt: datetimeLocalToIso(values.endsAt),
             };
             await axios.post(`/api/schedules/${scheduleId}/slots`, payload);
             setStatusMessage('Slot added');
-            setSlotForm(initialSlotForm);
             setShowSlotFormModal(false);
             await loadSelectedSchedule(scheduleId);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to add slot');
         }
+        setSubmitting(false);
     };
 
-    const handleAssignVolunteer = async (e) => {
-        e.preventDefault();
-        if (!selectedSlotId || !assignmentUsername) return;
+    const handleAssignVolunteer = async (values, { setSubmitting }) => {
+        if (!selectedSlotId || !values.assignmentUsername) return;
+        setSubmitting(true);
         try {
             setError('');
             await axios.post(`/api/schedules/slots/${selectedSlotId}/assignments`, {
-                username: assignmentUsername,
+                username: values.assignmentUsername,
             });
             setStatusMessage('Volunteer assigned');
-            setAssignmentUsername('');
             setShowAssignVolunteerModal(false);
             setSelectedSlotId(null);
             await loadSelectedSchedule(scheduleId);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to assign volunteer');
         }
+        setSubmitting(false);
     };
 
     const handleSelectSlot = (id) => {
@@ -119,8 +118,8 @@ const MinistryScheduleEditor = () => {
                     </button>
                 </div>
                 {statusMessage && <p className="text-green-600">{statusMessage}</p>}
-                {error && <p className="text-red-600">{error}</p>}
-
+                {error && <p className="text-red-600 mb-2">{error}</p>}
+                
                 {selectedSchedule?.slots?.length ? (
                     <div className="mb-4 overflow-x-auto">
                         <table className="w-full table-fixed divide-y divide-gray-200">
@@ -168,61 +167,78 @@ const MinistryScheduleEditor = () => {
                     <div className="text-gray-600 mb-2">No slots yet.</div>
                 )}
 
-                <div>
-                    {showSlotFormModal &&
-                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                            <div className="bg-white rounded-lg shadow-2xl max-w-sm w-full p-6 flex flex-col items-center">
-                                <form onSubmit={handleCreateSlot} className="space-y-2">
-                                    <h4>Add slot</h4>
-                                    <input
-                                        aria-label="Slot title"
-                                        placeholder="Slot title"
-                                        value={slotForm.title}
-                                        onChange={(e) => setSlotForm({ ...slotForm, title: e.target.value })}
-                                    />
-                                    <input
-                                        aria-label="Role label"
-                                        placeholder="Role label"
-                                        value={slotForm.roleLabel}
-                                        onChange={(e) =>
-                                            setSlotForm({ ...slotForm, roleLabel: e.target.value })
-                                        }
-                                    />
-                                    <input
-                                        aria-label="Slot starts at"
-                                        type="datetime-local"
-                                        value={slotForm.startsAt}
-                                        onChange={(e) =>
-                                            setSlotForm({ ...slotForm, startsAt: e.target.value })
-                                        }
-                                    />
-                                    <input
-                                        aria-label="Slot ends at"
-                                        type="datetime-local"
-                                        value={slotForm.endsAt}
-                                        onChange={(e) =>
-                                            setSlotForm({ ...slotForm, endsAt: e.target.value })
-                                        }
-                                    />
-                                    <div className="flex gap-4">
-                                        <button type="button" onClick={() => setShowSlotFormModal(false)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5">Cancel</button>
-                                        <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5">Add slot</button>
-                                    </div>
-                                </form>
-                            </div>
+                {showSlotFormModal &&
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                        <div className="bg-white rounded-lg shadow-2xl max-w-sm w-full p-6 flex flex-col items-center">
+                            <Formik initialValues={initialSlotForm} onSubmit={handleCreateSlot}>
+                                {({ handleChange, handleBlur, handleSubmit, isSubmitting, values }) => (
+                                    <form onSubmit={handleSubmit} className="w-full space-y-2">
+                                        <h3 className="text-lg font-bold mb-2">Add slot</h3>
+                                        {error && <p className="text-red-600 mb-2">{error}</p>}
+                                        <Field
+                                            aria-label="Slot title"
+                                            type="text"
+                                            className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                                            placeholder="Slot title"
+                                            value={values.title}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            name="title"
+                                        />
+                                        <input
+                                            aria-label="Role label"
+                                            className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                                            placeholder="Role label"
+                                            value={values.roleLabel}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            name="roleLabel"
+                                        />
+                                        <Field
+                                            aria-label="Slot starts at"
+                                            type="datetime-local"
+                                            className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                                            value={values.startsAt}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            name="startsAt"
+                                        />
+                                        <Field
+                                            aria-label="Slot ends at"
+                                            type="datetime-local"
+                                            className="form-control block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                                            value={values.endsAt}
+                                            onChange={handleChange}
+                                            onBlur={handleBlur}
+                                            name="endsAt"
+                                        />
+                                        <div className="flex gap-4">
+                                            <button type="button" onClick={() => setShowSlotFormModal(false)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5">Cancel</button>
+                                            <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5">Add slot</button>
+                                        </div>
+                                    </form>
+                                )}
+                            </Formik>
                         </div>
-                    }
-                </div>
+                    </div>
+                }
+            </div>
 
-                <div>
-                    {showAssignVolunteerModal &&
-                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                            <div className="bg-white rounded-lg shadow-2xl max-w-sm w-full p-6 flex flex-col items-center">
-                                <form onSubmit={handleAssignVolunteer}>
-                                    <select
+            {showAssignVolunteerModal &&
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                    <div className="bg-white rounded-lg shadow-2xl max-w-sm w-full p-6 flex flex-col items-center">
+                        <Formik initialValues={{ assignmentUsername: '' }} onSubmit={handleAssignVolunteer}>
+                            {({ handleChange, handleBlur, handleSubmit, isSubmitting, values }) => (
+                                <form onSubmit={handleSubmit}>
+                                    <h3 className="text-lg font-bold mb-2">Assign volunteer</h3>
+                                    {error && <p className="text-red-600 mb-2">{error}</p>}
+                                    <select disabled={isSubmitting}
                                         aria-label="Volunteer select"
-                                        value={assignmentUsername}
-                                        onChange={(e) => setAssignmentUsername(e.target.value)}
+                                        value={values.assignmentUsername}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        name="assignmentUsername"
+                                        className="form-control block w-full px-4 py-2 mt-1 mb-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                                     >
                                         <option value="">Select volunteer</option>
                                         {members.map((member) => (
@@ -233,16 +249,14 @@ const MinistryScheduleEditor = () => {
                                     </select>
                                     <div className="flex gap-4">
                                         <button type="button" onClick={() => setShowAssignVolunteerModal(false)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5">Cancel</button>
-                                        <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5">Assign volunteer</button>
+                                        <button type="submit" disabled={isSubmitting} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5">Assign volunteer</button>
                                     </div>
                                 </form>
-                            </div>
-                        </div>
-                    }
+                            )}
+                        </Formik>
+                    </div>
                 </div>
-            </div>
-
-
+            }
         </section>
     );
 };

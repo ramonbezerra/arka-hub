@@ -6,6 +6,9 @@ const MySchedules = () => {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [selectedAssignmentId, setSelectedAssignmentId] = useState(null);
+    const [selectedStatus, setSelectedStatus] = useState(null);
+    const [showConfirmDeclineModal, setShowConfirmDeclineModal] = useState(false);
 
     const loadAssignments = async () => {
         try {
@@ -20,18 +23,33 @@ const MySchedules = () => {
         }
     };
 
+    const handleConfirmDecline = async (assignmentId, status, showModal) => {
+        try {
+            setError('');
+            setShowConfirmDeclineModal(showModal);
+            setSelectedAssignmentId(assignmentId);
+            setSelectedStatus(status);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to confirm or decline assignment');
+        }
+    };
+
     useEffect(() => {
         loadAssignments();
     }, []);
 
-    const updateStatus = async (assignmentId, status) => {
+    const updateStatus = async () => {
         try {
+            console.log(selectedStatus)
             setError('');
-            await axios.patch(`/api/schedules/assignments/${assignmentId}`, { status });
+            await axios.patch(`/api/schedules/assignments/${selectedAssignmentId}`, { status: selectedStatus });
+            setSelectedAssignmentId(null);
+            setSelectedStatus(null);
             await loadAssignments();
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to update assignment');
         }
+        setShowConfirmDeclineModal(false);
     };
 
     return (
@@ -86,7 +104,7 @@ const MySchedules = () => {
                                                 <div className="space-x-2">
                                                     <button
                                                         type="button"
-                                                        onClick={() => updateStatus(item.assignment.id, 'confirmed')}
+                                                        onClick={() => handleConfirmDecline(item.assignment.id, 'confirmed', true)}
                                                         className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 ml-2"
                                                     >
                                                         <Icon icon="tabler:check-filled" width={16} height={16} />
@@ -94,7 +112,7 @@ const MySchedules = () => {
                                                     </button>
                                                     <button
                                                         type="button"
-                                                        onClick={() => updateStatus(item.assignment.id, 'declined')}
+                                                        onClick={() => handleConfirmDecline(item.assignment.id, 'declined', true)}
                                                         className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 ml-2"
                                                     >
                                                         <Icon icon="tabler:x-filled" width={16} height={16} />
@@ -109,6 +127,21 @@ const MySchedules = () => {
                     </div>
                 )}
             </div>
+
+            {showConfirmDeclineModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                    <div className="bg-white rounded-lg shadow-2xl max-w-sm w-full p-6 flex flex-col items-center">
+                        <h3 className="text-lg font-bold mb-2">Confirm or decline</h3>
+                        <span className="mb-4 text-center text-gray-600">
+                            Are you sure you want to {selectedStatus === 'confirmed' ? 'confirm' : 'decline'} this assignment?
+                        </span>
+                        <div className="flex gap-4">
+                            <button type="button" onClick={() => handleConfirmDecline(null, null, false)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5">Cancel</button>
+                            <button type="submit" onClick={() => updateStatus()} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 };

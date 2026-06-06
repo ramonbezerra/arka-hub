@@ -146,8 +146,9 @@ const MinistryScheduleList = () => {
                         <div className="bg-white rounded-lg shadow-2xl max-w-sm w-full p-6 flex flex-col items-center">
                             <Formik initialValues={initialScheduleForm} onSubmit={handleCreateSchedule}>
                                 {({ handleChange, handleBlur, handleSubmit, isSubmitting, values }) => (
-                                    <form onSubmit={handleSubmit}>
+                                    <form onSubmit={handleSubmit} className="w-full space-y-2">
                                         <h3 className="text-lg font-bold mb-2">Create schedule</h3>
+                                        {error && <p className="text-red-600 mb-2">{error}</p>}
                                         <div className="mb-2">
                                             <label htmlFor="title" className="block font-medium mb-2">Title</label>
                                             <Field
