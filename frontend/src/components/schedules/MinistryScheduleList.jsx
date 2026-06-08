@@ -4,6 +4,7 @@ import axios from '../../api/client';
 import { datetimeLocalToIso } from '../../utils/scheduleApi';
 import { Field, Formik } from 'formik';
 import { Icon } from '@iconify/react';
+import { useTranslation } from 'react-i18next';
 
 const initialScheduleForm = {
     title: '',
@@ -22,6 +23,7 @@ const MinistryScheduleList = () => {
     const [ministry, setMinistry] = useState(null);
     const [assignmentUsername, setAssignmentUsername] = useState('');
     const [statusMessage, setStatusMessage] = useState('');
+    const { t } = useTranslation();
 
     const loadSchedules = async () => {
         const response = await axios.get(`/api/ministries/${ministryId}/schedules`);
@@ -35,7 +37,7 @@ const MinistryScheduleList = () => {
                 setError('');
                 await Promise.all([loadSchedules(), loadMembers()]);
             } catch (err) {
-                setError(err.response?.data?.message || 'Failed to load schedule data');
+                setError(err.response?.data?.message || t('Failed to load schedule data'));
             }
         };
 
@@ -51,11 +53,11 @@ const MinistryScheduleList = () => {
                 values
             );
             setShowScheduleFormModal(false);
-            setStatusMessage('Schedule created');
+            setStatusMessage(t('Schedule created'));
             setScheduleForm(initialScheduleForm);
             await loadSchedules();
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to create schedule');
+            setError(err.response?.data?.message || t('Failed to create schedule'));
         } finally {
             setSubmitting(false);
         }
@@ -67,10 +69,10 @@ const MinistryScheduleList = () => {
             setError('');
             setShowPublishModal(true);
             await axios.post(`/api/schedules/${scheduleId}/publish`);
-            setStatusMessage('Schedule published');
+            setStatusMessage(t('Schedule published'));
             await loadSchedules();
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to publish schedule');
+            setError(err.response?.data?.message || t('Failed to publish schedule'));
         }
     };
 
@@ -78,25 +80,25 @@ const MinistryScheduleList = () => {
         <section>
             <div className="lg:w-[88%] sm:w-[88%] w-full mx-auto shadow-2xl p-4 rounded-xl h-fit self-center bg-gray-100">
                 <div className="items-center text-gray-600 p-4 flex justify-between">
-                    <h1 className="lg:text-3xl md:text-2xl text-xl">Schedules of {ministry?.name || ''} Ministry</h1>
+                    <h1 className="lg:text-3xl md:text-2xl text-xl">{t('Schedules of')} {ministry?.name || ''} {t('Ministry')}</h1>
                     <button
                         type="button"
                         onClick={() => setShowScheduleFormModal(true)}
                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5"
                     >
-                        Create New
+                        {t('Create New')}
                     </button>
                 </div>
                 {schedules.length === 0 ? (
-                    <div className="text-gray-600 mb-2">No schedules yet.</div>
+                    <div className="text-gray-600 mb-2">{t('No schedules yet.')}</div>
                 ) : (
                     <div className="mb-4 overflow-x-auto">
                         <table className="w-full table-fixed divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Schedule</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Schedule')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Status')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -107,7 +109,7 @@ const MinistryScheduleList = () => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${schedule.status === 'draft' ? 'bg-yellow-100 text-yellow-800' : schedule.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                                {schedule.status}
+                                                {t(schedule.status)}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -116,19 +118,19 @@ const MinistryScheduleList = () => {
                                                     <button className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5"
                                                         type="button">
                                                         <Icon icon="tabler:edit-filled" width={16} height={16} />
-                                                        <span className="text-xs">Edit</span>
+                                                        <span className="text-xs">{t('Edit')}</span>
                                                     </button>
                                                 </Link>
                                                 {schedule.status === 'draft'
                                                     ? <button className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 ml-2"
                                                             type="button" onClick={() => handlePublishSchedule(schedule.id)}>
                                                             <Icon icon="tabler:share" width={16} height={16} />
-                                                            <span className="text-xs">Publish</span>
+                                                            <span className="text-xs">{t('Publish')}</span>
                                                         </button>
                                                     : <button className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 ml-2"
                                                         type="button" onClick={() => handleArchiveSchedule(schedule.id)}>
                                                         <Icon icon="tabler:archive-filled" width={16} height={16} />
-                                                        <span className="text-xs">Archive</span>
+                                                        <span className="text-xs">{t('Archive')}</span>
                                                     </button>}
                                             </div>
                                         </td>
@@ -147,14 +149,14 @@ const MinistryScheduleList = () => {
                             <Formik initialValues={initialScheduleForm} onSubmit={handleCreateSchedule}>
                                 {({ handleChange, handleBlur, handleSubmit, isSubmitting, values }) => (
                                     <form onSubmit={handleSubmit} className="w-full space-y-2">
-                                        <h3 className="text-lg font-bold mb-2">Create schedule</h3>
+                                        <h3 className="text-lg font-bold mb-2">{t('Create schedule')}</h3>
                                         {error && <p className="text-red-600 mb-2">{error}</p>}
                                         <div className="mb-2">
-                                            <label htmlFor="title" className="block font-medium mb-2">Title</label>
+                                            <label htmlFor="title" className="block font-medium mb-2">{t('Title')}</label>
                                             <Field
                                                 type="text"
                                                 aria-label="Schedule title"
-                                                placeholder="Schedule title"
+                                                placeholder={t('Schedule title')}
                                                 value={values.title}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
@@ -163,7 +165,7 @@ const MinistryScheduleList = () => {
                                             />
                                         </div>
                                         <div className="mb-2">
-                                            <label htmlFor="startDate" className="block font-medium mb-2">Start date</label>
+                                            <label htmlFor="startDate" className="block font-medium mb-2">{t('Start date')}</label>
                                             <Field
                                                 type="date"
                                                 aria-label="Schedule start date"
@@ -175,7 +177,7 @@ const MinistryScheduleList = () => {
                                             />
                                         </div>
                                         <div className="mb-2">
-                                            <label htmlFor="endDate" className="block font-medium mb-2">End date</label>
+                                            <label htmlFor="endDate" className="block font-medium mb-2">{t('End date')}</label>
                                             <Field
                                                 type="date"
                                                 value={values.endDate}
@@ -189,14 +191,14 @@ const MinistryScheduleList = () => {
                                             <button
                                                 className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
                                                 onClick={() => setShowScheduleFormModal(false)}>
-                                                Cancel
+                                                {t('Cancel')}
                                             </button>
                                             <button
                                                 type="submit"
                                                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
                                                 disabled={isSubmitting}
                                             >
-                                                {isSubmitting ? 'Creating...' : 'Create schedule'}
+                                                {isSubmitting ? t('Creating...') : t('Create schedule')}
                                             </button>
                                         </div>
                                     </form>
@@ -212,10 +214,11 @@ const MinistryScheduleList = () => {
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                         <div className="bg-white rounded-lg shadow-2xl max-w-sm w-full p-6 flex flex-col items-center">
                             <Icon icon="mdi:alert" className="text-yellow-500 mb-2" width={34} height={34} />
-                            <h3 className="text-lg font-bold mb-2 text-gray-800">Confirm Publish</h3>
+                            <h3 className="text-lg font-bold mb-2 text-gray-800">{t('Confirm Publish')}</h3>
                             <p className="mb-4 text-center text-gray-600">
-                                Are you sure you want to publish this schedule?<br />
-                                All assignments and slots will be visible to members.
+                                {t('Are you sure you want to publish this schedule?')}
+                                <br />
+                                {t('All assignments and slots will be visible to members.')}
                             </p>
                             <div className="flex gap-4">
                                 <button
@@ -225,14 +228,14 @@ const MinistryScheduleList = () => {
                                         setShowPublishModal(false);
                                     }}
                                 >
-                                    Publish
+                                    {t('Publish')}
                                 </button>
                                 <button
                                     className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-4 py-2 rounded-lg transition"
                                     onClick={() => setShowPublishModal(false)}
                                     type="button"
                                 >
-                                    Cancel
+                                    {t('Cancel')}
                                 </button>
                             </div>
                         </div>

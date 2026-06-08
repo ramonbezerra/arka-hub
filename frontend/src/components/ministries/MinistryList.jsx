@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import axios from '../../api/client';
 
 const MinistryList = () => {
+    const { t } = useTranslation();
     const [ministries, setMinistries] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -20,7 +22,7 @@ const MinistryList = () => {
             const response = await axios.get('/api/ministries/');
             setMinistries(response.data.ministries || []);
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to load ministries');
+            setError(err.response?.data?.message || t('Failed to load ministries'));
         } finally {
             setLoading(false);
         }
@@ -33,7 +35,7 @@ const MinistryList = () => {
     const handleCreateMinistry = async (e) => {
         e.preventDefault();
         if (!newMinistry.name.trim()) {
-            setError('Ministry name is required');
+            setError(t('Ministry name is required'));
             return;
         }
 
@@ -46,10 +48,10 @@ const MinistryList = () => {
                 description: newMinistry.description.trim(),
             });
             setNewMinistry({ name: '', description: '' });
-            setSuccess('Ministry created successfully');
+            setSuccess(t('Ministry created successfully'));
             await loadMinistries();
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to create ministry');
+            setError(err.response?.data?.message || t('Failed to create ministry'));
         } finally {
             setCreating(false);
         }
@@ -57,22 +59,22 @@ const MinistryList = () => {
 
     return (
         <section className="space-y-3">
-            <h2>Ministries</h2>
+            <h2>{t('Ministries')}</h2>
             <form onSubmit={handleCreateMinistry} className="border rounded p-3 space-y-2">
-                <h3>Create ministry</h3>
+                <h3>{t('Create ministry')}</h3>
                 <div>
-                    <label htmlFor="ministryName">Name</label>
+                    <label htmlFor="ministryName">{t('Name')}</label>
                     <input
                         id="ministryName"
                         value={newMinistry.name}
                         onChange={(e) =>
                             setNewMinistry((prev) => ({ ...prev, name: e.target.value }))
                         }
-                        placeholder="Ex: Louvor"
+                        placeholder={t('Ex: Louvor')}
                     />
                 </div>
                 <div>
-                    <label htmlFor="ministryDescription">Description</label>
+                    <label htmlFor="ministryDescription">{t('Description')}</label>
                     <input
                         id="ministryDescription"
                         value={newMinistry.description}
@@ -82,19 +84,19 @@ const MinistryList = () => {
                                 description: e.target.value,
                             }))
                         }
-                        placeholder="Optional description"
+                        placeholder={t('Optional description')}
                     />
                 </div>
                 <button type="submit" disabled={creating}>
-                    {creating ? 'Creating...' : 'Create ministry'}
+                    {creating ? t('Creating...') : t('Create ministry')}
                 </button>
             </form>
 
-            {loading && <p>Loading...</p>}
+            {loading && <p>{t('Loading...')}</p>}
             {error && <p className="text-red-600">{error}</p>}
             {success && <p className="text-green-600">{success}</p>}
 
-            {!loading && !error && ministries.length === 0 && <p>No ministries found.</p>}
+            {!loading && !error && ministries.length === 0 && <p>{t('No ministries found.')}</p>}
 
             {!loading && !error && ministries.length > 0 && (
                 <ul className="space-y-2">
@@ -104,15 +106,15 @@ const MinistryList = () => {
                                 <div>
                                     <div className="font-semibold">{m.name}</div>
                                     <div className="text-sm text-gray-600">
-                                        {m.isActive ? 'Active' : 'Inactive'}
+                                        {m.isActive ? t('Active') : t('Inactive')}
                                     </div>
                                 </div>
                                 <div className="space-x-2">
                                     <Link to={`/ministries/${m.id}/members`}>
-                                        Manage members
+                                        {t('Manage members')}
                                     </Link>
                                     <Link to={`/ministries/${m.id}/schedules`}>
-                                        Schedules
+                                        {t('Schedules')}
                                     </Link>
                                 </div>
                             </div>

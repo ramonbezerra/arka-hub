@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import axios from '../../api/client';
 
 const MinistryMembersEditor = () => {
+    const { t } = useTranslation();
     const { ministryId } = useParams();
     const [memberships, setMemberships] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -40,7 +42,7 @@ const MinistryMembersEditor = () => {
                 setSuccess('');
                 await loadMemberships();
             } catch (err) {
-                setError(err.response?.data?.message || 'Failed to load ministry members');
+                setError(err.response?.data?.message || t('Failed to load ministry members'));
             } finally {
                 setLoading(false);
             }
@@ -54,7 +56,7 @@ const MinistryMembersEditor = () => {
                 setError('');
                 await searchMembers();
             } catch (err) {
-                setError(err.response?.data?.message || 'Failed to search members');
+                setError(err.response?.data?.message || t('Failed to search members'));
             }
         };
         run();
@@ -73,9 +75,9 @@ const MinistryMembersEditor = () => {
             await loadMemberships();
             setSelectedUsername('');
             setSelectedRole('volunteer');
-            setSuccess('Member added to ministry');
+            setSuccess(t('Member added to ministry'));
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to add member');
+            setError(err.response?.data?.message || t('Failed to add member'));
         }
     };
 
@@ -85,41 +87,41 @@ const MinistryMembersEditor = () => {
             setSuccess('');
             await axios.delete(`/api/ministries/${ministryId}/members/${userId}`);
             await loadMemberships();
-            setSuccess('Member removed from ministry');
+            setSuccess(t('Member removed from ministry'));
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to remove member');
+            setError(err.response?.data?.message || t('Failed to remove member'));
         }
     };
 
     return (
         <section className="space-y-4">
-            <h2>Manage ministry members</h2>
+            <h2>{t('Manage ministry members')}</h2>
 
-            {loading && <p>Loading...</p>}
+            {loading && <p>{t('Loading...')}</p>}
             {error && <p className="text-red-600">{error}</p>}
             {success && <p className="text-green-600">{success}</p>}
 
             <form onSubmit={handleAdd} className="space-y-2 border rounded p-3">
-                <h3>Add member</h3>
+                <h3>{t('Add member')}</h3>
 
                 <div className="space-y-1">
-                    <label htmlFor="memberSearch">Search members</label>
+                    <label htmlFor="memberSearch">{t('Search members')}</label>
                     <input
                         id="memberSearch"
                         value={search}
-                        placeholder="Type at least 2 characters"
+                        placeholder={t('Type at least 2 characters')}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
 
                 <div className="space-y-1">
-                    <label htmlFor="memberSelect">Select member</label>
+                    <label htmlFor="memberSelect">{t('Select member')}</label>
                     <select
                         id="memberSelect"
                         value={selectedUsername}
                         onChange={(e) => setSelectedUsername(e.target.value)}
                     >
-                        <option value="">Select</option>
+                        <option value="">{t('Select')}</option>
                         {candidates.map((m) => (
                             <option key={m.username} value={m.username}>
                                 {(m.fullname || m.username) + ` (${m.username})`}
@@ -129,25 +131,25 @@ const MinistryMembersEditor = () => {
                 </div>
 
                 <div className="space-y-1">
-                    <label htmlFor="roleSelect">Role</label>
+                    <label htmlFor="roleSelect">{t('Role')}</label>
                     <select
                         id="roleSelect"
                         value={selectedRole}
                         onChange={(e) => setSelectedRole(e.target.value)}
                     >
-                        <option value="volunteer">Volunteer</option>
-                        <option value="leader">Leader</option>
+                        <option value="volunteer">{t('Volunteer')}</option>
+                        <option value="leader">{t('Leader')}</option>
                     </select>
                 </div>
 
                 <button type="submit" disabled={!selectedUsername}>
-                    Add to ministry
+                    {t('Add to ministry')}
                 </button>
             </form>
 
             <div className="space-y-2">
-                <h3>Current members</h3>
-                {!loading && memberships.length === 0 && <p>No members yet.</p>}
+                <h3>{t('Current members')}</h3>
+                {!loading && memberships.length === 0 && <p>{t('No members yet.')}</p>}
                 {memberships.length > 0 && (
                     <ul className="space-y-2">
                         {memberships.map((m) => (
@@ -155,11 +157,11 @@ const MinistryMembersEditor = () => {
                                 <div>
                                     <div className="font-medium">{m.fullName || m.username}</div>
                                     <div className="text-sm text-gray-600">
-                                        {m.username} — {m.role}
+                                        {m.username} — {m.role === 'leader' ? t('Leader') : t('Volunteer')}
                                     </div>
                                 </div>
                                 <button type="button" onClick={() => handleRemove(m.userId)}>
-                                    Remove
+                                    {t('Remove')}
                                 </button>
                             </li>
                         ))}
