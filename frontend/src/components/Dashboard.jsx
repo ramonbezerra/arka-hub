@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { useAuth } from "../provider/authProvider";
-import axios from "axios";
+import axios from "../api/client";
 
 const Dashboard = () => {
     const { token, setToken } = useAuth();
@@ -19,7 +19,7 @@ const Dashboard = () => {
         setLoading(true);
         setError(null);
         
-        axios.get("http://localhost:5000/api/profile")
+        axios.get("/api/users/profile")
             .then(res => {
                 setUserData(res.data);
                 setLoading(false);

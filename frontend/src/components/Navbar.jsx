@@ -19,7 +19,15 @@ const Navbar = () => {
                 {token != null && jwtDecode(token).role === 'admin' && (
                     <>
                         <button><Link to="/dashboard">Dashboard</Link></button>
-                        <button><Link to="/admin-list">Administrators</Link></button>
+                        <button><Link to="/administrators">Administrators</Link></button>
+                        <button><Link to="/members">Members</Link></button>
+                        <button><Link to="/ministries">Ministries</Link></button>
+                    </>
+                )}
+                {token != null && (
+                    <>
+                        <button><Link to="/ministry-schedules">Ministry Schedules</Link></button>
+                        <button><Link to="/my-schedules">My Schedules</Link></button>
                     </>
                 )}
             </ul>

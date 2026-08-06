@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from '../api/client'
 import * as Yup from 'yup'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -25,7 +25,7 @@ const PasswordChange = () => {
             setError('Passwords do not match');
             return;
         }
-        axios.patch('http://localhost:5000/auth/change-password', { old_password, new_password })
+        axios.patch('/api/auth/change-password', { old_password, new_password })
             .then(response => {
                 setToken(response.data.access_token);
                 setSubmitting({ isValidating: false });

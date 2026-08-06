@@ -3,9 +3,9 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import User, db
 from datetime import date
 
-api_blueprint = Blueprint('api', __name__)
+users_blueprint = Blueprint('users', __name__)
 
-@api_blueprint.route('/profile', methods=['GET'])
+@users_blueprint.route('/profile', methods=['GET'])
 @jwt_required()
 def get_user_info():
     current_user = get_jwt_identity()
@@ -20,8 +20,9 @@ def get_user_info():
             "fullname": user.full_name,
             "email": user.email,
             "phone": user.phone,
-            "dateOfBirth": user.date_of_birth,
+            "dateOfBirth": user.date_of_birth.isoformat() if user.date_of_birth else None,
             "cpf": user.cpf,
+            # "servicePreferences": user.service_preferences.split(',') if user.service_preferences else [],
             "gender": user.gender,
             "address": user.addresses[0].address if user.addresses else None,
             "city": user.addresses[0].city if user.addresses else None,
@@ -32,7 +33,7 @@ def get_user_info():
         return jsonify(data), 200
     return jsonify(message="User not found"), 404
 
-@api_blueprint.route('/profile', methods=['PUT'])
+@users_blueprint.route('/profile', methods=['PUT'])
 @jwt_required()
 def update_profile():
     current_user = get_jwt_identity()
@@ -45,8 +46,18 @@ def update_profile():
     user.full_name = data.get('fullname', user.full_name)
     user.email = data.get('email', user.email)
     user.phone = data.get('phone', user.phone)
-    user.date_of_birth = date.fromisoformat(data.get('dateOfBirth', user.date_of_birth))
+
+    date_of_birth = data.get('dateOfBirth')
+    if date_of_birth:
+        user.date_of_birth = date.fromisoformat(date_of_birth) if isinstance(date_of_birth, str) else date_of_birth
+
     user.cpf = data.get('cpf', user.cpf)
+    service_preferences = data.get('servicePreferences')
+    if service_preferences is not None:
+        if isinstance(service_preferences, list):
+            user.service_preferences = ','.join(service_preferences)
+        else:
+            user.service_preferences = service_preferences
     user.gender = data.get('gender', user.gender)
     if not user.addresses:
         from models import Address
@@ -62,7 +73,7 @@ def update_profile():
     db.session.commit()
     return jsonify(message="Profile updated successfully"), 200
 
-@api_blueprint.route('/admin', methods=['GET'])
+@users_blueprint.route('/admin', methods=['GET'])
 @jwt_required()
 def get_administrators_list():
     current_user = get_jwt_identity()
@@ -77,16 +88,16 @@ def get_administrators_list():
         return jsonify(data), 200
     return jsonify(message="User not found"), 404
 
-@api_blueprint.route('/admin/<username>', methods=['PATCH'])
+@users_blueprint.route('/<username>', methods=['PATCH'])
 @jwt_required()
-def enable_or_disable_admin(username):
+def enable_or_disable_user(username):
     current_user = get_jwt_identity()
     user = User.query.filter_by(username=current_user).first()
     if user:
-        admin = User.query.filter_by(username=username).first()
-        if admin:
-            admin.is_active = not admin.is_active
+        user_to_update = User.query.filter_by(username=username).first()
+        if user_to_update:
+            user_to_update.is_active = not user_to_update.is_active
             db.session.commit()
-            return jsonify(message="Admin updated successfully"), 204
-        return jsonify(message="Admin not found"), 404
+            return jsonify(message="User updated successfully"), 204
+        return jsonify(message="User not found"), 404
     return jsonify(message="User not found"), 404
