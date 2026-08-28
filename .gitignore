@@ -47,4 +47,7 @@
 # Ignore ESLint cache files
 /frontend/.eslintcache
 
+# Docker - local env only (do not commit secrets)
+.env
+
 .vscode/

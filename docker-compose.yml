@@ -1,0 +1,99 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-arka}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-arkapass}
+      POSTGRES_DB: ${POSTGRES_DB:-arkahub}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-arka}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    configs:
+      - source: pgadmin_servers
+        target: /pgadmin4/servers.json
+    ports:
+      - "5050:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    volumes:
+        - ./backend:/app
+    environment:
+      FLASK_CONFIG: production
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-arka}:${POSTGRES_PASSWORD:-arkapass}@db:5432/${POSTGRES_DB:-arkahub}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-me-in-production}
+    command: >
+      sh -c "test -f migrations/env.py && flask db upgrade;
+      flask init-db;
+      gunicorn --reload --bind 0.0.0.0:5000 app:app"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:5000/api/health/ready').status==200 else 1)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+      # args:
+        # In a real deployment point this at the public backend URL
+        # REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:5000}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+         CHOKIDAR_USEPOLLING: "true"
+         WATCHPACK_POLLING: "true"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+configs:
+  pgadmin_servers:
+    content: |
+      {
+        "Servers": {
+          "1": {
+            "Name": "Arka Hub DB",
+            "Group": "Servers",
+            "Host": "db",
+            "Port": 5432,
+            "MaintenanceDB": "arkahub",
+            "Username": "arka",
+            "Password": "arkapass",
+            "SSLMode": "prefer",
+            "Shared": true
+          }
+        }
+      }

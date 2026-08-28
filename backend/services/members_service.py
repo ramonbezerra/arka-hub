@@ -147,10 +147,15 @@ def enroll_member(username, email, password, fullname='', phone='', cpf=None,
     if not username or not email or not password:
         return {'error': 'username, email and password are required', 'code': 400}
 
+    for field, limit in {'username': 80, 'email': 120, 'fullname': 120, 'phone': 20, 'cpf': 11, 'gender': 10}.items():
+        value = locals().get(field)
+        if value and len(str(value)) > limit:
+            return {'error': f'{field} must be at most {limit} characters', 'code': 400}
+
     if Member.query.filter_by(username=username).first() or Member.query.filter_by(email=email).first():
         return {'error': 'Member with that username or email already exists', 'code': 409}
 
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     
     service_prefs_str = ''
     if service_preferences:

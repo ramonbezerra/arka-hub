@@ -1,6 +1,7 @@
 import os
 from sqlalchemy.pool import StaticPool
 
+
 class Config:
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'your-secret-key')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -11,6 +12,13 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         'DATABASE_URL', 'sqlite:///site.db'
     )
+
+
+class ProductionConfig(Config):
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        'DATABASE_URL', 'postgresql+psycopg2://arka:arkapass@db:5432/arkahub'
+    )
+
 
 class TestingConfig(Config):
     TESTING = True
@@ -23,6 +31,7 @@ class TestingConfig(Config):
 
 config_by_name = {
     'development': DevelopmentConfig,
+    'production': ProductionConfig,
     'testing': TestingConfig,
     'default': DevelopmentConfig,
 }
