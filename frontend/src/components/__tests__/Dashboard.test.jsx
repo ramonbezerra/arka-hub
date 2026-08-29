@@ -30,21 +30,43 @@ describe('Dashboard', () => {
         expect(axios.get).not.toHaveBeenCalled();
     });
 
-    it('loads and displays username when profile request succeeds', async () => {
-        axios.get.mockResolvedValueOnce({
-            data: { username: 'admin', fullname: 'Admin User' },
-        });
+    it('loads the user profile and shows ministry schedule cards', async () => {
+        axios.get
+            .mockResolvedValueOnce({ data: { username: 'admin', fullname: 'Admin User' } })
+            .mockResolvedValueOnce({
+                data: {
+                    ministries: [
+                        { id: 1, name: 'Worship', description: 'Praise team', isActive: true },
+                        { id: 2, name: 'Youth', description: 'Youth support', isActive: true },
+                    ],
+                },
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    ministry: { id: 1, name: 'Worship' },
+                    schedules: [
+                        { id: 10, title: 'June Worship', status: 'published', startDate: '2026-08-01', endDate: '2026-08-15', slots: [{ id: 1 }, { id: 2 }, { id: 3 }] },
+                    ],
+                },
+            })
+            .mockResolvedValueOnce({
+                data: {
+                    ministry: { id: 2, name: 'Youth' },
+                    schedules: [
+                        { id: 11, title: 'Youth Gathering', status: 'published', startDate: '2026-08-05', endDate: '2026-08-12', slots: [{ id: 1 }, { id: 2 }] },
+                    ],
+                },
+            });
 
         renderWithProviders(<Dashboard />, {
             route: '/dashboard',
             token: createMockJwt({ role: 'admin' }),
         });
 
-        await waitFor(() => {
-            expect(axios.get).toHaveBeenCalledWith('/api/users/profile');
-        });
-
         expect(await screen.findByText('admin')).toBeInTheDocument();
+        expect(await screen.findByText('Worship')).toBeInTheDocument();
+        expect(await screen.findByText('June Worship')).toBeInTheDocument();
+        expect(await screen.findByText('View schedule')).toBeInTheDocument();
     });
 
     it('shows error when profile request fails', async () => {
