@@ -159,53 +159,53 @@ const Dashboard = () => {
     }).length;
 
     return (
-        <div className="space-y-4 p-3">
+        <div className="space-y-4">
             <div className="lg:w-[88%] sm:w-[88%] w-full mx-auto shadow-2xl p-4 rounded-xl h-fit self-center bg-gray-100">
-                {<div className="items-center text-gray-600 p-3 flex justify-between">
-                    <h2 className="lg:text-3xl md:text-2xl text-xl">{userData?.username ? t("Welcome") + ", " + userData?.username: error || "Loading..."}</h2>
+                {<div className="items-center text-gray-600 p-6 flex justify-center">
+                    <h2 className="lg:text-3xl md:text-2xl text-xl text-center">{userData?.username ? t("Welcome") + ", " + userData?.username: error || "Loading..."}</h2>
                 </div>}
                 {!loading && !error && (() => {
                     const slotCoverage = getTotalSlotCoverage(cards);
                     return (
-                        <div className="lg:w-[88%] sm:w-[88%] w-full mx-auto grid gap-2 md:grid-cols-2 xl:grid-cols-4">
-                            <div className="bg-white rounded-lg shadow-sm p-2 border border-gray-100 flex items-stretch gap-2">
-                                <ul className="flex-1 space-y-0.5 text-[9px] text-gray-600">
-                                    <li className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold">Ministries</li>
+                        <div className="lg:w-[95%] sm:w-[90%] w-full mx-auto grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100 flex items-stretch gap-4">
+                                <ul className="flex-1 space-y-1 text-sm text-gray-600">
+                                    <li className="text-xs uppercase tracking-wide text-gray-500 font-semibold">Ministries</li>
                                     {cards.slice(0, 2).map((card) => (
-                                        <li key={card.ministry.id} className="truncate text-gray-700 font-medium">{card.ministry.name}</li>
+                                        <li key={card.ministry.id} className="truncate text-gray-700 font-medium text-base">{card.ministry.name}</li>
                                     ))}
                                 </ul>
-                                <div className="flex flex-col items-center justify-center bg-blue-50 rounded-md px-2 py-1 border border-blue-200 min-w-[40px]">
-                                    <p className="text-lg font-bold text-blue-800">{cards.length}</p>
+                                <div className="flex flex-col items-center justify-center bg-blue-50 rounded-md px-4 py-2 border border-blue-200 min-w-[80px]">
+                                    <p className="text-4xl font-bold text-blue-800">{cards.length}</p>
                                 </div>
                             </div>
-                            <div className="bg-white rounded-lg shadow-sm p-2 border border-gray-100 flex items-stretch gap-2">
-                                <ul className="flex-1 space-y-0.5 text-[9px] text-gray-600">
-                                    <li className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold">Schedules</li>
+                            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100 flex items-stretch gap-4">
+                                <ul className="flex-1 space-y-1 text-sm text-gray-600">
+                                    <li className="text-xs uppercase tracking-wide text-gray-500 font-semibold">Schedules</li>
                                     {cards.flatMap((card) => card.schedules).slice(0, 2).map((schedule) => (
-                                        <li key={schedule.id} className="truncate text-gray-700 font-medium">{schedule.title}</li>
+                                        <li key={schedule.id} className="truncate text-gray-700 font-medium text-base">{schedule.title}</li>
                                     ))}
                                 </ul>
-                                <div className="flex flex-col items-center justify-center bg-purple-50 rounded-md px-2 py-1 border border-purple-200 min-w-[40px]">
-                                    <p className="text-lg font-bold text-purple-800">{cards.reduce((total, card) => total + card.schedules.length, 0)}</p>
+                                <div className="flex flex-col items-center justify-center bg-purple-50 rounded-md px-4 py-2 border border-purple-200 min-w-[80px]">
+                                    <p className="text-4xl font-bold text-purple-800">{cards.reduce((total, card) => total + card.schedules.length, 0)}</p>
                                 </div>
                             </div>
-                            <div className="bg-white rounded-lg shadow-sm p-2 border border-gray-100 flex items-center justify-between">
+                            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100 flex items-center justify-between">
                                 <div className="flex-1">
-                                    <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold">Assigned</p>
-                                    <p className="text-xs text-gray-600 mt-0.5">Slots filled</p>
+                                    <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">Assigned</p>
+                                    <p className="text-sm text-gray-600 mt-1">Slots filled</p>
                                 </div>
-                                <div className="flex flex-col items-center justify-center bg-emerald-50 rounded-md px-2 py-1 border border-emerald-200 min-w-[40px]">
-                                    <p className="text-lg font-bold text-emerald-800">{slotCoverage.totalAssigned}</p>
+                                <div className="flex flex-col items-center justify-center bg-emerald-50 rounded-md px-4 py-2 border border-emerald-200 min-w-[80px]">
+                                    <p className="text-4xl font-bold text-emerald-800">{slotCoverage.totalAssigned}</p>
                                 </div>
                             </div>
-                            <div className="bg-white rounded-lg shadow-sm p-2 border border-gray-100 flex items-center justify-between">
+                            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100 flex items-center justify-between">
                                 <div className="flex-1">
-                                    <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold">Unassigned</p>
-                                    <p className="text-xs text-gray-600 mt-0.5">Need volunteers</p>
+                                    <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">Unassigned</p>
+                                    <p className="text-sm text-gray-600 mt-1">Need volunteers</p>
                                 </div>
-                                <div className="flex flex-col items-center justify-center bg-amber-50 rounded-md px-2 py-1 border border-amber-200 min-w-[40px]">
-                                    <p className="text-lg font-bold text-amber-800">{slotCoverage.totalUnassigned}</p>
+                                <div className="flex flex-col items-center justify-center bg-amber-50 rounded-md px-4 py-2 border border-amber-200 min-w-[80px]">
+                                    <p className="text-4xl font-bold text-amber-800">{slotCoverage.totalUnassigned}</p>
                                 </div>
                             </div>
                         </div>
@@ -213,13 +213,13 @@ const Dashboard = () => {
                 })()}
 
                 {!loading && !error && cards.length === 0 && (
-                    <div className="lg:w-[88%] sm:w-[88%] w-full mx-auto bg-white rounded-xl shadow-md p-6 text-gray-600 mt-3">
+                    <div className="lg:w-[95%] sm:w-[90%] w-full mx-auto bg-white rounded-xl shadow-md p-6 text-gray-600 mt-3">
                         No ministry schedules are available for your account right now.
                     </div>
                 )}
 
                 {!loading && !error && cards.length > 0 && (
-                    <div className="lg:w-[88%] sm:w-[88%] w-full mx-auto grid gap-2 md:grid-cols-2 xl:grid-cols-4 mt-3">
+                    <div className="lg:w-[95%] sm:w-[90%] w-full mx-auto grid gap-2 md:grid-cols-2 xl:grid-cols-4 mt-3">
                         {cards.map(({ ministry, schedules, primarySchedule }) => {
                             const nextSlot = getNextSlot(primarySchedule);
                             const volunteerCount = getAssignmentCount(primarySchedule);
