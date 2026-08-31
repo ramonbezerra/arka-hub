@@ -15,10 +15,9 @@ const Navbar = () => {
     return (
         <nav className='items-center bg-green-700 text-gray-100 p-4 mb-4 flex space-x-4'>
             <ul className='flex flex-400 space-x-4'>
-                <li className='text-2xl text-center'><Link to="/">Arka Hub</Link></li>
+                <li className='text-2xl text-center'><Link to={token != null ? "/dashboard" : "/"}>Arka Hub</Link></li>
                 {token != null && jwtDecode(token).role === 'admin' && (
                     <>
-                        <button><Link to="/dashboard">Dashboard</Link></button>
                         <button><Link to="/administrators">Administrators</Link></button>
                         <button><Link to="/members">Members</Link></button>
                         <button><Link to="/ministries">Ministries</Link></button>
