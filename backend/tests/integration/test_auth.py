@@ -64,6 +64,27 @@ class TestLogin:
         assert response.status_code == 401
         assert response.get_json()['message'] == 'User is inactive'
 
+class TestRefreshToken:
+    def test_refresh_token_success(self, client, member_user):
+        login_response = client.post(
+            '/api/auth/login',
+            json={'username': 'member1', 'password': 'memberpass'},
+        )
+
+        assert login_response.status_code == 200
+        refresh_token = login_response.get_json()['refresh_token']
+
+        response = client.post(
+            '/api/auth/refresh',
+            headers={'Authorization': f'Bearer {refresh_token}'},
+        )
+
+        assert response.status_code == 200
+        data = response.get_json()
+        assert 'access_token' in data
+        assert data['access_token']
+        assert data['access_token'] != refresh_token
+
 class TestChangePassword:
     def test_change_password_success(self, client, member_user):
         response = client.patch(

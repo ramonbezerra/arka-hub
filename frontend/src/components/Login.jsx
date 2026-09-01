@@ -7,7 +7,7 @@ import { LoginSchema } from '../utils/validationSchemas';
 import { useTranslation } from 'react-i18next';
 
 const Login = () => {
-    const { setToken } = useAuth();
+    const { setToken, setRefreshToken } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState(null);
     const { t } = useTranslation();
@@ -17,6 +17,7 @@ const Login = () => {
         axios.post('/api/auth/login', { username, password })
             .then(response => {
                 setToken(response.data.access_token);
+                setRefreshToken(response.data.refresh_token);
                 setSubmitting({ isValidating: false });
                 navigate('/dashboard');
             })
