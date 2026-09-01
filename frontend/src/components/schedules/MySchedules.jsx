@@ -77,24 +77,24 @@ const MySchedules = () => {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {items.map((item) => (
-                                    <tr key={item.assignment.id}>
-                                        <td className="px-6 py-4 whitespace-nowrap">{item.schedule.title}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{item.slot.title}</td>
-                                        {item.assignment.status === 'assigned' && (
+                                    <tr key={item?.assignment?.id || item?.slot?.id || item?.schedule?.id || Math.random()}>
+                                        <td className="px-6 py-4 whitespace-nowrap">{item?.schedule?.title || t('Unknown schedule')}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{item?.slot?.title || t('Unknown slot')}</td>
+                                        {item?.assignment?.status === 'assigned' && (
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
                                                     {t('Assigned')}
                                                 </span>
                                             </td>
                                         )}
-                                        {item.assignment.status === 'confirmed' && (
+                                        {item?.assignment?.status === 'confirmed' && (
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
                                                     {t('Confirmed')}
                                                 </span>
                                             </td>
                                         )}
-                                        {item.assignment.status === 'declined' && (
+                                        {item?.assignment?.status === 'declined' && (
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
                                                     {t('Declined')}
@@ -102,7 +102,7 @@ const MySchedules = () => {
                                             </td>
                                         )}
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            {item.assignment.status === 'assigned' && (
+                                            {item?.assignment?.status === 'assigned' && (
                                                 <div className="space-x-2">
                                                     <button
                                                         type="button"

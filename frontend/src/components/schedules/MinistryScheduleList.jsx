@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from '../../api/client';
-import { datetimeLocalToIso } from '../../utils/scheduleApi';
 import { Field, Formik } from 'formik';
 import { Icon } from '@iconify/react';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +19,7 @@ const MinistryScheduleList = () => {
     const [scheduleForm, setScheduleForm] = useState(initialScheduleForm);
     const [showScheduleFormModal, setShowScheduleFormModal] = useState(false);
     const [showPublishModal, setShowPublishModal] = useState(false);
+    const [showArchiveModal, setShowArchiveModal] = useState(false);
     const [ministry, setMinistry] = useState(null);
     const [assignmentUsername, setAssignmentUsername] = useState('');
     const [statusMessage, setStatusMessage] = useState('');
@@ -35,7 +35,7 @@ const MinistryScheduleList = () => {
         const loadInitialData = async () => {
             try {
                 setError('');
-                await Promise.all([loadSchedules(), loadMembers()]);
+                await Promise.all([loadSchedules()]);
             } catch (err) {
                 setError(err.response?.data?.message || t('Failed to load schedule data'));
             }
@@ -53,7 +53,6 @@ const MinistryScheduleList = () => {
                 values
             );
             setShowScheduleFormModal(false);
-            setStatusMessage(t('Schedule created'));
             setScheduleForm(initialScheduleForm);
             await loadSchedules();
         } catch (err) {
@@ -69,10 +68,20 @@ const MinistryScheduleList = () => {
             setError('');
             setShowPublishModal(true);
             await axios.post(`/api/schedules/${scheduleId}/publish`);
-            setStatusMessage(t('Schedule published'));
             await loadSchedules();
         } catch (err) {
             setError(err.response?.data?.message || t('Failed to publish schedule'));
+        }
+    };
+
+    const handleArchiveSchedule = async (scheduleId) => {
+        if (!scheduleId) return;
+        try {
+            setError('');
+            await axios.post(`/api/schedules/${scheduleId}/archive`);
+            await loadSchedules();
+        } catch (err) {
+            setError(err.response?.data?.message || t('Failed to archive schedule'));
         }
     };
 
@@ -89,6 +98,7 @@ const MinistryScheduleList = () => {
                         {t('Create New')}
                     </button>
                 </div>
+                {error && <p className="text-red-600">{error}</p>}
                 {schedules.length === 0 ? (
                     <div className="text-gray-600 mb-2">{t('No schedules yet.')}</div>
                 ) : (
@@ -123,12 +133,20 @@ const MinistryScheduleList = () => {
                                                 </Link>
                                                 {schedule.status === 'draft'
                                                     ? <button className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 ml-2"
-                                                            type="button" onClick={() => handlePublishSchedule(schedule.id)}>
-                                                            <Icon icon="tabler:share" width={16} height={16} />
-                                                            <span className="text-xs">{t('Publish')}</span>
-                                                        </button>
+                                                        type="button" onClick={() => { 
+                                                            setError('');
+                                                            setSelectedScheduleId(schedule.id);
+                                                            setShowPublishModal(true);
+                                                        }}>
+                                                        <Icon icon="tabler:share" width={16} height={16} />
+                                                        <span className="text-xs">{t('Publish')}</span>
+                                                    </button>
                                                     : <button className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 ml-2"
-                                                        type="button" onClick={() => handleArchiveSchedule(schedule.id)}>
+                                                        type="button" onClick={() => {
+                                                            setError('');
+                                                            setSelectedScheduleId(schedule.id);
+                                                            setShowArchiveModal(true);
+                                                        }}>
                                                         <Icon icon="tabler:archive-filled" width={16} height={16} />
                                                         <span className="text-xs">{t('Archive')}</span>
                                                     </button>}
@@ -242,7 +260,41 @@ const MinistryScheduleList = () => {
                     </div>
                 )}
             </div>
-        </section>
+
+            <div>
+                {showArchiveModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                        <div className="bg-white rounded-lg shadow-2xl max-w-sm w-full p-6 flex flex-col items-center">
+                            <Icon icon="mdi:archive" className="text-red-500 mb-2" width={34} height={34} />
+                            <h3 className="text-lg font-bold mb-2 text-gray-800">{t('Confirm Archive')}</h3>
+                            <p className="mb-4 text-center text-gray-600">
+                                {t('Are you sure you want to archive this schedule?')}
+                                <br />
+                                {t('All assignments and slots will be hidden from members.')}
+                            </p>
+                            <div className="flex gap-4">
+                                <button
+                                    className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition"
+                                    onClick={async () => {
+                                        await handleArchiveSchedule(selectedScheduleId);
+                                        setShowArchiveModal(false);
+                                    }}
+                                >
+                                    {t('Archive')}
+                                </button>
+                                <button
+                                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-4 py-2 rounded-lg transition"
+                                    onClick={() => setShowArchiveModal(false)}
+                                    type="button"
+                                >
+                                    {t('Cancel')}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </section >
     );
 }
 

@@ -22,14 +22,21 @@ const formatDateRange = (startDate, endDate) => {
 };
 
 const getAssignmentCount = (schedule) => {
-    const slots = schedule?.slots || [];
-    return slots.reduce((total, slot) => total + ((slot.assignments || []).length || 0), 0);
+    const slots = Array.isArray(schedule?.slots) ? schedule.slots.filter(Boolean) : [];
+    return slots.reduce((total, slot) => total + ((slot?.assignments || []).length || 0), 0);
+};
+
+const getSlotStartTime = (slot) => {
+    if (!slot) return null;
+    return slot.startsAt || slot.startTime || null;
 };
 
 const getNextSlot = (schedule) => {
-    const slots = [...((schedule?.slots || []).filter(Boolean))].sort(
-        (a, b) => new Date(a.startsAt || 0) - new Date(b.startsAt || 0)
-    );
+    const slots = Array.isArray(schedule?.slots)
+        ? schedule.slots.filter(Boolean).filter((slot) => !!getSlotStartTime(slot))
+        : [];
+
+    slots.sort((a, b) => new Date(getSlotStartTime(a)) - new Date(getSlotStartTime(b)));
 
     return slots[0] || null;
 };
@@ -393,11 +400,11 @@ const Dashboard = () => {
                                                         <Icon icon="tabler:users" width={14} height={14} />
                                                         <span>{volunteerCount} volunteers</span>
                                                     </div>
-                                                    {nextSlot && (
+                                                    {nextSlot && getSlotStartTime(nextSlot) && (
                                                         <div className="flex items-center gap-2 text-[11px] text-slate-700">
                                                             <Icon icon="tabler:star-filled" width={14} height={14} className="text-amber-500" />
                                                             <span>
-                                                                Next: {nextSlot.title || "Open slot"} · {new Date(nextSlot.startsAt).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+                                                                Next: {nextSlot.title || "Open slot"} · {new Date(getSlotStartTime(nextSlot)).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
                                                             </span>
                                                         </div>
                                                     )}

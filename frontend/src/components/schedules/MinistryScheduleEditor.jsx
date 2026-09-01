@@ -139,20 +139,20 @@ const MinistryScheduleEditor = () => {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {selectedSchedule.slots.map((slot) => (
-                                    <tr key={slot.id}>
+                                    <tr key={slot?.id ?? Math.random()}>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            {slot.title}
+                                            {slot?.title || t('Untitled slot')}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            {slot.roleLabel}
+                                            {slot?.roleLabel || '-'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <ul>
-                                                {(slot.assignments || []).map((assignment) => (
-                                                    <li key={assignment.id}>
-                                                        <span className="font-medium">{assignment.username}</span>
-                                                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${assignment.status === 'assigned' ? 'bg-yellow-100 text-yellow-800' : assignment.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                                            {assignmentStatusLabel(assignment.status)}
+                                                {(slot?.assignments || []).map((assignment) => (
+                                                    <li key={assignment?.id ?? `${slot?.id ?? 'slot'}-${assignment?.username ?? 'unknown'}`}>
+                                                        <span className="font-medium">{assignment?.username || t('Unknown volunteer')}</span>
+                                                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${assignment?.status === 'assigned' ? 'bg-yellow-100 text-yellow-800' : assignment?.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                                            {assignmentStatusLabel(assignment?.status)}
                                                         </span>
                                                     </li>
                                                 ))}
