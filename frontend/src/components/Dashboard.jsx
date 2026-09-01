@@ -247,28 +247,28 @@ const Dashboard = () => {
                                 <div className="w-full mx-auto grid gap-3 md:grid-cols-4">
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">My pending slots</p>
-                                            <Icon icon="tabler:clock-hour-4" className="text-amber-500" width={22} height={22} />
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Pending</p>
+                                            <Icon icon="tabler:clock-hour-4" className="text-amber-300" width={22} height={22} />
                                         </div>
-                                        <span className="text-3xl font-bold text-slate-800">{assignmentSummary.pending}</span>
+                                        <span className="text-3xl font-bold text-amber-500">{assignmentSummary.pending}</span>
                                     </div>
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-700">Confirmed</p>
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Confirmed</p>
                                             <Icon icon="tabler:check" className="text-emerald-600" width={22} height={22} />
                                         </div>
                                         <span className="text-3xl font-bold text-emerald-800">{assignmentSummary.confirmed}</span>
                                     </div>
-                                    <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 shadow-sm">
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-rose-700">Declined</p>
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Declined</p>
                                             <Icon icon="tabler:x" className="text-rose-600" width={22} height={22} />
                                         </div>
                                         <span className="text-3xl font-bold text-rose-800">{assignmentSummary.declined}</span>
                                     </div>
-                                    <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 shadow-sm">
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-blue-700">Upcoming</p>
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Upcoming</p>
                                             <Icon icon="tabler:calendar-event" className="text-blue-600" width={22} height={22} />
                                         </div>
                                         <span className="text-3xl font-bold text-blue-800">{upcomingCount}</span>
@@ -293,27 +293,27 @@ const Dashboard = () => {
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
                                             <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">My pending slots</p>
-                                            <Icon icon="tabler:clock-hour-4" className="text-amber-500" width={22} height={22} />
+                                            <Icon icon="tabler:clock-hour-4" className="text-amber-300" width={22} height={22} />
                                         </div>
-                                        <span className="text-3xl font-bold text-slate-800">{assignmentSummary.pending}</span>
+                                        <span className="text-3xl font-bold text-amber-500">{assignmentSummary.pending}</span>
                                     </div>
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-700">Confirmed</p>
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Confirmed</p>
                                             <Icon icon="tabler:check" className="text-emerald-600" width={22} height={22} />
                                         </div>
                                         <span className="text-3xl font-bold text-emerald-800">{assignmentSummary.confirmed}</span>
                                     </div>
-                                    <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 shadow-sm">
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-rose-700">Declined</p>
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Declined</p>
                                             <Icon icon="tabler:x" className="text-rose-600" width={22} height={22} />
                                         </div>
                                         <span className="text-3xl font-bold text-rose-800">{assignmentSummary.declined}</span>
                                     </div>
-                                    <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 shadow-sm">
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-blue-700">Upcoming</p>
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Upcoming</p>
                                             <Icon icon="tabler:calendar-event" className="text-blue-600" width={22} height={22} />
                                         </div>
                                         <span className="text-3xl font-bold text-blue-800">{upcomingCount}</span>
