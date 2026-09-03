@@ -76,6 +76,29 @@ const getAssignmentStatusSummary = (assignments = []) => {
     );
 };
 
+const getUnassignedScheduleCount = (cards) => {
+    const schedules = cards.flatMap((card) => card.allSchedules || card.schedules || []);
+    const uniqueSchedules = new Map(schedules.map((schedule) => [schedule.id, schedule]));
+
+    return Array.from(uniqueSchedules.values()).filter((schedule) => {
+        const assignments = (schedule.slots || []).flatMap((slot) => slot.assignments || []);
+        return assignments.length === 0 || assignments.every((assignment) => (
+            (assignment?.assignment?.status || assignment?.status) === "declined"
+        ));
+    }).length;
+};
+
+const getScheduleStatusSummary = (cards) => {
+    return cards
+        .flatMap((card) => card.allSchedules || card.schedules || [])
+        .reduce((summary, schedule) => {
+            if (schedule.status === "draft") summary.draft += 1;
+            else if (schedule.status === "published") summary.published += 1;
+            else if (schedule.status === "archived") summary.archived += 1;
+            return summary;
+        }, { draft: 0, published: 0, archived: 0 });
+};
+
 const Dashboard = () => {
     const { token } = useAuth();
     const [userData, setUserData] = useState(null);
@@ -143,6 +166,7 @@ const Dashboard = () => {
                             return {
                                 ministry,
                                 schedules: limitedSchedules,
+                                allSchedules: detailedSchedules,
                                 primarySchedule,
                             };
                         } catch (scheduleError) {
@@ -181,8 +205,8 @@ const Dashboard = () => {
         };
     }, [token]);
 
-    const upcomingCount = cards.filter((card) => {
-        const schedule = card.primarySchedule;
+    const upcomingCount = myAssignments.filter((item) => {
+        const schedule = item?.schedule;
         if (!schedule?.startDate) return false;
 
         const today = new Date();
@@ -195,6 +219,8 @@ const Dashboard = () => {
     const canGoPrev = carouselIndex > 0;
     const canGoNext = carouselIndex + CARDS_PER_VIEW < cards.length;
     const assignmentSummary = getAssignmentStatusSummary(myAssignments);
+    const unassignedScheduleCount = getUnassignedScheduleCount(cards);
+    const scheduleStatusSummary = getScheduleStatusSummary(cards);
 
     return (
         <div className="space-y-4">
@@ -220,7 +246,7 @@ const Dashboard = () => {
                                 </button>
                             </div>
 
-                            <div className="mt-4 space-y-3">
+                            <div className="mt-4 space-y-5">
                                 <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
                                     <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">Next service</p>
                                     <p className="mt-1 text-sm font-medium text-slate-700">Volunteer check-in on Saturday at 8:00 AM</p>
@@ -236,7 +262,7 @@ const Dashboard = () => {
                             </div>
                         </div>
                         
-                        <div>
+                        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                             <div className="mb-5">
                                 <div className="mb-3 flex items-center justify-between gap-3">
                                     <div>
@@ -261,7 +287,7 @@ const Dashboard = () => {
                                     </div>
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Confirmed</p>
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Accepted</p>
                                             <Icon icon="tabler:check" className="text-emerald-600" width={22} height={22} />
                                         </div>
                                         <span className="text-3xl font-bold text-emerald-800">{assignmentSummary.confirmed}</span>
@@ -285,45 +311,37 @@ const Dashboard = () => {
                             <div>
                                 <div className="mb-3 flex items-center justify-between gap-3">
                                     <div>
-                                        <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Next Schedules</p>
-                                        <h3 className="text-lg font-semibold text-slate-800">My slots</h3>
+                                        <h3 className="text-lg font-semibold text-slate-800">All schedules</h3>
                                     </div>
-                                    <button
-                                        type="button"
-                                        className="rounded-full border border-slate-200 bg-slate-50 p-2 text-slate-600 transition hover:bg-slate-100"
-                                        aria-label="Add schedule"
-                                    >
-                                        <Icon icon="tabler:plus" width={16} height={16} />
-                                    </button>
                                 </div>
                                 <div className="w-full mx-auto grid gap-3 md:grid-cols-4">
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">My pending slots</p>
-                                            <Icon icon="tabler:clock-hour-4" className="text-amber-300" width={22} height={22} />
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Need Volunteers</p>
+                                            <Icon icon="tabler:user-off" className="text-orange-600" width={22} height={22} />
                                         </div>
-                                        <span className="text-3xl font-bold text-amber-500">{assignmentSummary.pending}</span>
+                                        <span className="text-3xl font-bold text-orange-800">{unassignedScheduleCount}</span>
                                     </div>
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Confirmed</p>
-                                            <Icon icon="tabler:check" className="text-emerald-600" width={22} height={22} />
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Draft</p>
+                                            <Icon icon="tabler:file-description" className="text-slate-500" width={22} height={22} />
                                         </div>
-                                        <span className="text-3xl font-bold text-emerald-800">{assignmentSummary.confirmed}</span>
+                                        <span className="text-3xl font-bold text-slate-700">{scheduleStatusSummary.draft}</span>
                                     </div>
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Declined</p>
-                                            <Icon icon="tabler:x" className="text-rose-600" width={22} height={22} />
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Published</p>
+                                            <Icon icon="tabler:world-check" className="text-emerald-600" width={22} height={22} />
                                         </div>
-                                        <span className="text-3xl font-bold text-rose-800">{assignmentSummary.declined}</span>
+                                        <span className="text-3xl font-bold text-emerald-800">{scheduleStatusSummary.published}</span>
                                     </div>
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Upcoming</p>
-                                            <Icon icon="tabler:calendar-event" className="text-blue-600" width={22} height={22} />
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Archived</p>
+                                            <Icon icon="tabler:archive" className="text-slate-600" width={22} height={22} />
                                         </div>
-                                        <span className="text-3xl font-bold text-blue-800">{upcomingCount}</span>
+                                        <span className="text-3xl font-bold text-slate-800">{scheduleStatusSummary.archived}</span>
                                     </div>
                                 </div>
                             </div>
