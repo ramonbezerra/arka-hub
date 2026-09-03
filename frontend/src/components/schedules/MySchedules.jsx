@@ -102,8 +102,8 @@ const MySchedules = () => {
                                             </td>
                                         )}
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            {item?.assignment?.status === 'assigned' && (
-                                                <div className="space-x-2">
+                                            <div className="space-x-2">
+                                                {(item?.assignment?.status === 'assigned' || item?.assignment?.status === 'declined') && (
                                                     <button
                                                         type="button"
                                                         onClick={() => handleConfirmDecline(item.assignment.id, 'confirmed', true)}
@@ -112,6 +112,8 @@ const MySchedules = () => {
                                                         <Icon icon="tabler:check-filled" width={16} height={16} />
                                                         <span className="text-xs">{t('Confirm')}</span>
                                                     </button>
+                                                )}
+                                                {(item?.assignment?.status === 'assigned' || item?.assignment?.status === 'confirmed') && (
                                                     <button
                                                         type="button"
                                                         onClick={() => handleConfirmDecline(item.assignment.id, 'declined', true)}
@@ -120,8 +122,8 @@ const MySchedules = () => {
                                                         <Icon icon="tabler:x-filled" width={16} height={16} />
                                                         <span className="text-xs">{t('Decline')}</span>
                                                     </button>
-                                                </div>
-                                            )}
+                                                )}
+                                            </div>
                                         </td></tr>
                                 ))}
                             </tbody>
