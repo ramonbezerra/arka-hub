@@ -133,6 +133,8 @@ const MinistryScheduleEditor = () => {
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Title')}</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Role')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Start time')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('End time')}</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Assigners')}</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Actions')}</th>
                                 </tr>
@@ -145,6 +147,12 @@ const MinistryScheduleEditor = () => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {slot?.roleLabel || '-'}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {slot?.startsAt ? new Date(slot.startsAt).toLocaleTimeString() : '-'}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {slot?.endsAt ? new Date(slot.endsAt).toLocaleTimeString() : '-'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <ul>

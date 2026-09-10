@@ -107,6 +107,8 @@ const MinistryScheduleList = () => {
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Schedule')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Start Date')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('End Date')}</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Status')}</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Actions')}</th>
                                 </tr>
@@ -116,6 +118,12 @@ const MinistryScheduleList = () => {
                                     <tr key={schedule.id}>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {schedule.title}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {schedule.startDate}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {schedule.endDate}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${schedule.status === 'draft' ? 'bg-yellow-100 text-yellow-800' : schedule.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
