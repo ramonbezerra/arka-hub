@@ -154,7 +154,7 @@ def _user_can_view_schedule(schedule, user_id, *, is_admin=False, can_manage=Fal
 
 
 def _schedule_is_editable(schedule):
-    return schedule.status == SCHEDULE_STATUS_DRAFT
+    return schedule.status == SCHEDULE_STATUS_DRAFT or schedule.status == SCHEDULE_STATUS_PUBLISHED
 
 
 def _has_assignment_overlap(user_id, starts_at, ends_at, exclude_slot_id=None):
@@ -305,7 +305,7 @@ def create_slot(schedule_id, data):
     if not schedule:
         return {'error': 'Schedule not found', 'code': 404}
     if not _schedule_is_editable(schedule):
-        return {'error': 'Slots can only be added to draft schedules', 'code': 400}
+        return {'error': 'Slots can not be added to archived schedules', 'code': 400}
 
     title = (data.get('title') or '').strip()
     if not title:
