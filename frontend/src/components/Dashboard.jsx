@@ -48,19 +48,6 @@ const getSlotCoverage = (schedule) => {
     return { assigned, unassigned };
 };
 
-const getTotalSlotCoverage = (cards) => {
-    let totalAssigned = 0;
-    let totalUnassigned = 0;
-    cards.forEach((card) => {
-        card.schedules.forEach((schedule) => {
-            const coverage = getSlotCoverage(schedule);
-            totalAssigned += coverage.assigned;
-            totalUnassigned += coverage.unassigned;
-        });
-    });
-    return { totalAssigned, totalUnassigned };
-};
-
 const getAssignmentStatusSummary = (assignments = []) => {
     return assignments.reduce(
         (summary, item) => {
@@ -190,7 +177,7 @@ const Dashboard = () => {
                 if (isMounted) {
                     setUserData(null);
                     setCards([]);
-                    setError("Failed to load data.");
+                    setError(t("Failed to load data."));
                 }
             } finally {
                 if (isMounted) {
@@ -234,8 +221,8 @@ const Dashboard = () => {
                         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Communications</p>
-                                    <h3 className="text-lg font-semibold text-slate-800">Reminders</h3>
+                                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{t("Communications")}</p>
+                                    <h3 className="text-lg font-semibold text-slate-800">{t("Reminders")}</h3>
                                 </div>
                                 <button
                                     type="button"
@@ -248,16 +235,16 @@ const Dashboard = () => {
 
                             <div className="mt-4 space-y-5">
                                 <div className="rounded-xl bg-amber-50 border border-amber-200 p-3">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">Next service</p>
-                                    <p className="mt-1 text-sm font-medium text-slate-700">Volunteer check-in on Saturday at 8:00 AM</p>
+                                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700">{t("Next service")}</p>
+                                    <p className="mt-1 text-sm font-medium text-slate-700">{t("Volunteer check-in on Saturday at 8:00 AM")}</p>
                                 </div>
                                 <div className="rounded-xl bg-blue-50 border border-blue-200 p-3">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-blue-700">Announcement</p>
-                                    <p className="mt-1 text-sm font-medium text-slate-700">Ministry sync meeting this Friday at 6:30 PM</p>
+                                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-blue-700">{t("Announcement")}</p>
+                                    <p className="mt-1 text-sm font-medium text-slate-700">{t("Ministry sync meeting this Friday at 6:30 PM")}</p>
                                 </div>
                                 <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3">
-                                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">Update</p>
-                                    <p className="mt-1 text-sm font-medium text-slate-700">Three new slots were added to the worship schedule</p>
+                                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">{t("Update")}</p>
+                                    <p className="mt-1 text-sm font-medium text-slate-700">{t("Three new slots were added to the worship schedule")}</p>
                                 </div>
                             </div>
                         </div>
@@ -266,8 +253,8 @@ const Dashboard = () => {
                             <div className="mb-5">
                                 <div className="mb-3 flex items-center justify-between gap-3">
                                     <div>
-                                        <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Next Schedules</p>
-                                        <h3 className="text-lg font-semibold text-slate-800">My slots</h3>
+                                        <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{t("Next Schedules")}</p>
+                                        <h3 className="text-lg font-semibold text-slate-800">{t("My slots")}</h3>
                                     </div>
                                     <button
                                         type="button"
@@ -280,28 +267,28 @@ const Dashboard = () => {
                                 <div className="w-full mx-auto grid gap-3 md:grid-cols-4">
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Pending</p>
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{t("Pending")}</p>
                                             <Icon icon="tabler:clock-hour-4" className="text-amber-300" width={22} height={22} />
                                         </div>
                                         <span className="text-3xl font-bold text-amber-500">{assignmentSummary.pending}</span>
                                     </div>
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Accepted</p>
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{t("Accepted")}</p>
                                             <Icon icon="tabler:check" className="text-emerald-600" width={22} height={22} />
                                         </div>
-                                        <span className="text-3xl font-bold text-emerald-800">{assignmentSummary.confirmed}</span>
+                                        <span className="text-3xl font-bold text-emerald-600">{assignmentSummary.confirmed}</span>
                                     </div>
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Declined</p>
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{t("Declined")}</p>
                                             <Icon icon="tabler:x" className="text-rose-600" width={22} height={22} />
                                         </div>
                                         <span className="text-3xl font-bold text-rose-800">{assignmentSummary.declined}</span>
                                     </div>
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Upcoming</p>
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{t("Upcoming")}</p>
                                             <Icon icon="tabler:calendar-event" className="text-blue-600" width={22} height={22} />
                                         </div>
                                         <span className="text-3xl font-bold text-blue-800">{upcomingCount}</span>
@@ -311,34 +298,34 @@ const Dashboard = () => {
                             <div>
                                 <div className="mb-3 flex items-center justify-between gap-3">
                                     <div>
-                                        <h3 className="text-lg font-semibold text-slate-800">All schedules</h3>
+                                        <h3 className="text-lg font-semibold text-slate-800">{t("All schedules")}</h3>
                                     </div>
                                 </div>
                                 <div className="w-full mx-auto grid gap-3 md:grid-cols-4">
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Need Volunteers</p>
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{t("Need Volunteers")}</p>
                                             <Icon icon="tabler:user-off" className="text-orange-600" width={22} height={22} />
                                         </div>
                                         <span className="text-3xl font-bold text-orange-800">{unassignedScheduleCount}</span>
                                     </div>
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Draft</p>
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{t("Draft")}</p>
                                             <Icon icon="tabler:file-description" className="text-slate-500" width={22} height={22} />
                                         </div>
                                         <span className="text-3xl font-bold text-slate-700">{scheduleStatusSummary.draft}</span>
                                     </div>
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Published</p>
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{t("Published")}</p>
                                             <Icon icon="tabler:world-check" className="text-emerald-600" width={22} height={22} />
                                         </div>
                                         <span className="text-3xl font-bold text-emerald-800">{scheduleStatusSummary.published}</span>
                                     </div>
                                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                         <div className="flex items-start justify-between">
-                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Archived</p>
+                                            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{t("Archived")}</p>
                                             <Icon icon="tabler:archive" className="text-slate-600" width={22} height={22} />
                                         </div>
                                         <span className="text-3xl font-bold text-slate-800">{scheduleStatusSummary.archived}</span>
@@ -354,8 +341,8 @@ const Dashboard = () => {
                         <div>
                             <div className="mb-3 flex items-center justify-between gap-3">
                                 <div>
-                                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Highlights</p>
-                                    <h3 className="text-lg font-semibold text-slate-800">Ministry schedules</h3>
+                                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{t("Highlights")}</p>
+                                    <h3 className="text-lg font-semibold text-slate-800">{t("Ministry schedules")}</h3>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <button
@@ -389,12 +376,12 @@ const Dashboard = () => {
                                         <div key={ministry.id} className="min-w-[270px] flex-1 snap-start rounded-2xl border border-slate-200 bg-white p-4 shadow-sm flex flex-col gap-3 min-h-[260px]">
                                             <div className="flex items-start justify-between gap-2">
                                                 <div>
-                                                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Ministry</p>
+                                                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{t("Ministry")}</p>
                                                     <h3 className="text-lg font-semibold text-slate-800 leading-tight">{ministry.name}</h3>
                                                 </div>
                                                 {primarySchedule && (
                                                     <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700">
-                                                        {primarySchedule.status}
+                                                        {t(primarySchedule.status)}
                                                     </span>
                                                 )}
                                             </div>
@@ -402,7 +389,7 @@ const Dashboard = () => {
                                             {primarySchedule && (
                                                 <div className="space-y-2 text-sm text-slate-600">
                                                     <div>
-                                                        <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Featured schedule</p>
+                                                        <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{t("Featured schedule")}</p>
                                                         <p className="text-base font-medium text-slate-800 leading-snug">{primarySchedule.title}</p>
                                                     </div>
 
@@ -412,29 +399,29 @@ const Dashboard = () => {
                                                     </div>
                                                     <div className="flex items-center gap-2 text-xs">
                                                         <Icon icon="tabler:clock-hour-4" width={14} height={14} />
-                                                        <span>{(primarySchedule.slots || []).length} slots</span>
+                                                        <span>{(primarySchedule.slots || []).length} {t("slots")}</span>
                                                     </div>
                                                     <div className="flex items-center gap-2 text-xs">
                                                         <Icon icon="tabler:users" width={14} height={14} />
-                                                        <span>{volunteerCount} volunteers</span>
+                                                        <span>{volunteerCount} {t("volunteers")}</span>
                                                     </div>
                                                     {nextSlot && getSlotStartTime(nextSlot) && (
                                                         <div className="flex items-center gap-2 text-[11px] text-slate-700">
                                                             <Icon icon="tabler:star-filled" width={14} height={14} className="text-amber-500" />
                                                             <span>
-                                                                Next: {nextSlot.title || "Open slot"} · {new Date(getSlotStartTime(nextSlot)).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+                                                                {t("Next")}: {nextSlot.title || "Open slot"} · {new Date(getSlotStartTime(nextSlot)).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
                                                             </span>
                                                         </div>
                                                     )}
                                                 </div>
                                             )}
 
-                                            {recentSchedules.length > 0 && (
+                                            {primarySchedule && (primarySchedule.slots || []).length > 0 && (
                                                 <div className="mt-1 text-left">
-                                                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Schedules</p>
+                                                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">{t("Slots")}</p>
                                                     <ul className="space-y-1 text-xs text-slate-700">
-                                                        {recentSchedules.map((schedule) => (
-                                                            <li key={schedule.id} className="truncate">• {schedule.title}</li>
+                                                        {primarySchedule.slots.map((slot) => (
+                                                            <li key={slot.id} className="truncate">• {slot.title}</li>
                                                         ))}
                                                     </ul>
                                                 </div>
@@ -443,11 +430,11 @@ const Dashboard = () => {
                                             <div className="mt-auto flex items-center justify-end">
                                                 <button
                                                     type="button"
-                                                    onClick={() => navigate(`/ministries/${ministry.id}/schedules`)}
+                                                    onClick={() => navigate(`/ministries/${ministry.id}/schedules/${primarySchedule.id}`)}
                                                     className="inline-flex items-center gap-1 rounded-lg bg-blue-500 px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700"
                                                 >
                                                     <Icon icon="tabler:arrow-right" width={14} height={14} />
-                                                    <span>View schedule</span>
+                                                    <span>{t("View schedule")}</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -460,7 +447,7 @@ const Dashboard = () => {
 
                 {!loading && !error && cards.length === 0 && (
                     <div className="lg:w-[95%] sm:w-[90%] w-full mx-auto bg-white rounded-xl shadow-md p-6 text-gray-600 mt-4">
-                        No ministry schedules are available for your account right now.
+                        {t("No ministry schedules are available for your account right now.")}
                     </div>
                 )}
             </div>
