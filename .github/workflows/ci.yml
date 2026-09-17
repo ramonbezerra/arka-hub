@@ -138,7 +138,7 @@ jobs:
           application-name: ${{ vars.EB_APPLICATION_NAME }}
           environment-name: ${{ vars.EB_ENVIRONMENT_NAME }}
           version-label: api-${{ github.sha }}
-          region: ${{ vars.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
           deployment-package: backend-${{ github.sha }}.zip
           wait-for-deployment: true
 
