@@ -134,11 +134,11 @@ jobs:
 
       - name: Validate Elastic Beanstalk bundle
         run: |
-          unzip -l arka-hub-api.zip
+          unzip -l backend-${{ github.sha }}.zip
       
-          unzip -l arka-hub-api.zip | grep -E '(^| )app\.py$'
-          unzip -l arka-hub-api.zip | grep -E '(^| )Procfile$'
-          unzip -l arka-hub-api.zip | grep -E '(^| )requirements\.txt$'
+          unzip -l backend-${{ github.sha }}.zip | grep -E '(^| )app\.py$'
+          unzip -l backend-${{ github.sha }}.zip | grep -E '(^| )Procfile$'
+          unzip -l backend-${{ github.sha }}.zip | grep -E '(^| )requirements\.txt$'
      
       - name: Deploy source bundle to existing EB environment
         uses: aws-actions/aws-elasticbeanstalk-deploy@v1
