@@ -132,6 +132,14 @@ jobs:
             -x ".pytest_cache/*" \
             -x "tests/*"
 
+      - name: Validate Elastic Beanstalk bundle
+        run: |
+          unzip -l backend-${{ github.sha }}.zip
+      
+          unzip -l backend-${{ github.sha }}.zip | grep -E '(^| )app\.py$'
+          unzip -l backend-${{ github.sha }}.zip | grep -E '(^| )Procfile$'
+          unzip -l backend-${{ github.sha }}.zip | grep -E '(^| )requirements\.txt$'
+     
       - name: Deploy source bundle to existing EB environment
         uses: aws-actions/aws-elasticbeanstalk-deploy@v1
         with:
