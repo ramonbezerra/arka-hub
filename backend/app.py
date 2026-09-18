@@ -96,8 +96,10 @@ def seed_admin_user():
 
 app = create_app()
 
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        seed_admin_user()
-    app.run(debug=True)
+#if __name__ == '__main__':
+#    with app.app_context():
+#        db.create_all()
+#        seed_admin_user()
+#    app.run(debug=True)
+
+application = app
