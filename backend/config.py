@@ -1,43 +1,53 @@
 import os
+from pathlib import Path
+from urllib.parse import quote_plus
+
 from sqlalchemy.pool import StaticPool
 
+BASE_DIR = Path(__file__).resolve().parent
+RDS_CERT = BASE_DIR / "us-east-1-bundle.pem"
+
 class Config:
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'your-secret-key')
+    JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "your-secret-key")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    BABEL_DEFAULT_LOCALE = os.environ.get('BABEL_DEFAULT_LOCALE', 'en')
-    BABEL_SUPPORTED_LOCALES = os.environ.get('BABEL_SUPPORTED_LOCALES', 'en,pt').split(',')
+    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_SUPPORTED_LOCALES = ["en", "pt"]
 
 class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DATABASE_URL', 'postgresql+psycopg2://arka:arkapass@db:5432/arkahub'
+        "DATABASE_URL",
+        "postgresql+psycopg2://arka:arkapass@db:5432/arkahub",
     )
 
 class ProductionConfig(Config):
-    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
-    POSTGRES_USER = os.environ.get('POSTGRES_USER')
-    POSTGRES_DB = os.environ.get('POSTGRES_DB')
-    DB_PASSWORD = os.environ.get('DB_PASSWORD')
-    DATABASE_SERVER = os.environ.get('DATABASE_SERVER')
+    DB_PASSWORD = os.environ.get("DB_PASSWORD")
 
     SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DATABASE_URL',
-        f'postgresql+psycopg2://{POSTGRES_USER}:{DB_PASSWORD}@'
-        f'{DATABASE_SERVER}:5432/{POSTGRES_DB}'
-        f'?sslmode=verify-full&sslrootcert=./global-bundle.pem'
+        "DATABASE_URL",
+        "postgresql+psycopg2://postgres:"
+        f"{quote_plus(DB_PASSWORD or 'arkapass')}"
+        "@arka-hub-db.c05gams08but.us-east-1.rds.amazonaws.com:5432/postgres",
     )
+
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "connect_args": {
+            "sslmode": "verify-full",
+            "sslrootcert": str(RDS_CERT),
+        }
+    }
 
 class TestingConfig(Config):
     TESTING = True
-    JWT_SECRET_KEY = 'test-secret-key'
-    SQLALCHEMY_DATABASE_URI = 'sqlite://'
+    JWT_SECRET_KEY = "test-secret-key"
+    SQLALCHEMY_DATABASE_URI = "sqlite://"
     SQLALCHEMY_ENGINE_OPTIONS = {
-        'poolclass': StaticPool,
-        'connect_args': {'check_same_thread': False},
+        "poolclass": StaticPool,
+        "connect_args": {"check_same_thread": False},
     }
 
 config_by_name = {
-    'development': DevelopmentConfig,
-    'production': ProductionConfig,
-    'testing': TestingConfig,
-    'default': DevelopmentConfig,
+    "development": DevelopmentConfig,
+    "production": ProductionConfig,
+    "testing": TestingConfig,
+    "default": ProductionConfig,
 }
