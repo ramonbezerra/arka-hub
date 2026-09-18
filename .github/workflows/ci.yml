@@ -127,7 +127,6 @@ jobs:
 
           zip -r ../api-arka-hub-${{ github.sha }}.zip . \
             -x ".env" \
-            -x "*.pem" \
             -x "__pycache__/*" \
             -x "*.pyc" \
             -x ".venv/*" \
