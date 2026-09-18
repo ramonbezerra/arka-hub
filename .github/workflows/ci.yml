@@ -139,7 +139,7 @@ jobs:
         run: |
           rm -rf /tmp/deploy-check
           mkdir /tmp/deploy-check
-          unzip deploy.zip -d /tmp/deploy-check
+          unzip api-arka-hub-${{ github.sha }}.zip -d /tmp/deploy-check
 
           echo "=== PACKAGE ==="
           find /tmp/deploy-check -maxdepth 2 -type f | sort
