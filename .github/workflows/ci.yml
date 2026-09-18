@@ -134,6 +134,12 @@ jobs:
             -x ".pytest_cache/*" \
             -x ".git/*"
      
+      - name: Verify bundle
+        run: |
+          unzip -p api-arka-hub-${{ github.sha }}.zip Procfile
+          echo
+          unzip -l api-arka-hub-${{ github.sha }}.zip | grep -E 'Procfile|app.py|requirements.txt'
+      
       - name: Deploy source bundle to existing EB environment
         uses: aws-actions/aws-elasticbeanstalk-deploy@v1
         with:
