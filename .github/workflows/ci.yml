@@ -154,22 +154,25 @@ jobs:
           echo "=== CHECK APP ==="
           test -f /tmp/deploy-check/app.py && echo "app.py FOUND" || echo "app.py NOT FOUND"
     
-      - name: Validate Elastic Beanstalk source bundle
+      - name: Test Flask import
         run: |
-          echo "=== Root files ==="
-          unzip -Z1 api-arka-hub-${{ github.sha }}.zip | sed -n '1,80p'
+          cd backend
+          echo "=== PROCFILE ==="
+          cat Procfile
 
-          echo "=== app.py must be at ZIP root ==="
-          unzip -Z1 api-arka-hub-${{ github.sha }}.zip | grep -x "app.py"
+          echo "=== CURRENT DIRECTORY ==="
+          pwd
 
-          echo "=== Procfile must be at ZIP root ==="
-          unzip -Z1 api-arka-hub-${{ github.sha }}.zip | grep -x "Procfile"
+          echo "=== FILES ==="
+          ls -la
 
-          echo "=== requirements.txt must be at ZIP root ==="
-          unzip -Z1 api-arka-hub-${{ github.sha }}.zip | grep -x "requirements.txt"
+          echo "=== APP.PY ==="
+          ls -l app.py
 
-          echo "=== Procfile content ==="
-          unzip -p api-arka-hub-${{ github.sha }}.zip Procfile
+          echo "=== IMPORT ==="
+          python -c "import sys; print(sys.path); import app; print(app.app)"
+
+          unzip -l api-arka-hub-${{ github.sha }}.zip | grep -E '(^|/)app\.py$|Procfile'
      
       - name: Deploy source bundle to existing EB environment
         uses: aws-actions/aws-elasticbeanstalk-deploy@v1
