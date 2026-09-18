@@ -124,7 +124,7 @@ jobs:
       - name: Package Flask source bundle
         run: |
           cd backend
-          zip -r ../backend-${{ github.sha }}.zip . \
+          zip -r ../api-arka-hub-${{ github.sha }}.zip . \
             -x ".env" \
             -x ".venv/*" \
             -x "venv/*" \
