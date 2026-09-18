@@ -121,24 +121,36 @@ jobs:
             --cache-control "no-cache,no-store,must-revalidate" \
             --content-type "text/html"
 
-      - name: Package Flask source bundle
+      - name: Build Elastic Beanstalk bundle
         run: |
           cd backend
+
           zip -r ../api-arka-hub-${{ github.sha }}.zip . \
             -x ".env" \
+            -x "*.pem" \
+            -x "__pycache__/*" \
+            -x "*.pyc" \
             -x ".venv/*" \
             -x "venv/*" \
-            -x "__pycache__/*" \
             -x ".pytest_cache/*" \
-            -x "tests/*"
+            -x ".git/*"
 
-      - name: Validate Elastic Beanstalk bundle
+      - name: Validate Elastic Beanstalk source bundle
         run: |
-          unzip -l api-arka-hub-${{ github.sha }}.zip
-      
-          unzip -l api-arka-hub-${{ github.sha }}.zip | grep -E '(^| )app\.py$'
-          unzip -l api-arka-hub-${{ github.sha }}.zip | grep -E '(^| )Procfile$'
-          unzip -l api-arka-hub-${{ github.sha }}.zip | grep -E '(^| )requirements\.txt$'
+          echo "=== Root files ==="
+          unzip -Z1 api-arka-hub-${{ github.sha }}.zip | sed -n '1,80p'
+
+          echo "=== app.py must be at ZIP root ==="
+          unzip -Z1 api-arka-hub-${{ github.sha }}.zip | grep -x "app.py"
+
+          echo "=== Procfile must be at ZIP root ==="
+          unzip -Z1 api-arka-hub-${{ github.sha }}.zip | grep -x "Procfile"
+
+          echo "=== requirements.txt must be at ZIP root ==="
+          unzip -Z1 api-arka-hub-${{ github.sha }}.zip | grep -x "requirements.txt"
+
+          echo "=== Procfile content ==="
+          unzip -p api-arka-hub-${{ github.sha }}.zip Procfile
      
       - name: Deploy source bundle to existing EB environment
         uses: aws-actions/aws-elasticbeanstalk-deploy@v1
