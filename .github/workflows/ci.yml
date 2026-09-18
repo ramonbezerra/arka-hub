@@ -153,6 +153,12 @@ jobs:
           echo ""
           echo "=== CHECK APP ==="
           test -f /tmp/deploy-check/app.py && echo "app.py FOUND" || echo "app.py NOT FOUND"
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
     
       - name: Test Flask import
         run: |
@@ -173,6 +179,16 @@ jobs:
           python -c "import sys; print(sys.path); import app; print(app.app)"
 
           unzip -l api-arka-hub-${{ github.sha }}.zip | grep -E '(^|/)app\.py$|Procfile'
+
+      - name: Test deployment package
+        run: |
+          rm -rf /tmp/eb-test
+          mkdir /tmp/eb-test
+          unzip -q api-arka-hub-${{ github.sha }}.zip -d /tmp/eb-test
+
+          cd /tmp/eb-test
+          python -m pip install -r requirements.txt
+          python -c "import app; print('PACKAGE IMPORT OK:', app.app)"
      
       - name: Deploy source bundle to existing EB environment
         uses: aws-actions/aws-elasticbeanstalk-deploy@v1
