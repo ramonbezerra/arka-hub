@@ -135,6 +135,25 @@ jobs:
             -x ".pytest_cache/*" \
             -x ".git/*"
 
+      - name: Validate deployment package
+        run: |
+          rm -rf /tmp/deploy-check
+          mkdir /tmp/deploy-check
+          unzip deploy.zip -d /tmp/deploy-check
+
+          echo "=== PACKAGE ==="
+          find /tmp/deploy-check -maxdepth 2 -type f | sort
+
+          echo "=== APP.PY ==="
+          test -f /tmp/deploy-check/app.py
+
+          echo "=== PROCFILE ==="
+          cat /tmp/deploy-check/Procfile
+
+          echo ""
+          echo "=== CHECK APP ==="
+          test -f /tmp/deploy-check/app.py && echo "app.py FOUND" || echo "app.py NOT FOUND"
+    
       - name: Validate Elastic Beanstalk source bundle
         run: |
           echo "=== Root files ==="
