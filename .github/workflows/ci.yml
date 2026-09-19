@@ -147,7 +147,7 @@ jobs:
           environment-name: ${{ vars.EB_ENVIRONMENT_NAME }}
           version-label: api-${{ github.sha }}
           aws-region: ${{ vars.AWS_REGION }}
-          deployment-package: api-arka-hub-${{ github.sha }}.zip
+          deployment-package-path: api-arka-hub-${{ github.sha }}.zip
           wait-for-deployment: true
 
       - name: Smoke test API

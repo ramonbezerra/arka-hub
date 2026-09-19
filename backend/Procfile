@@ -1,1 +1,1 @@
-web: pwd; ls -la; python -c "import os,sys; print('PWD=',os.getcwd()); print('PATH=',sys.path)"; gunicorn --bind 0.0.0.0:8000 --access-logfile - --error-logfile - --capture-output --log-level info app:app
+web: gunicorn --bind 0.0.0.0:8000 --access-logfile - --error-logfile - --capture-output --log-level info app:app
