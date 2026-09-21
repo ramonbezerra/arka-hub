@@ -30,8 +30,9 @@ def login():
     password = data.get('password')
 
     user = User.query.filter_by(username=username).first()
+    hashed_password = user.password.encode('utf-8') if user and isinstance(user.password, str) else (user.password if user else None)
 
-    if user and user.is_active and bcrypt.checkpw(password.encode('utf-8'), user.password):
+    if user and user.is_active and bcrypt.checkpw(password.encode('utf-8'), hashed_password):
         access_token = create_access_token(identity=username, additional_claims={"role": user.role, "is_active": user.is_active})
         refresh_token = create_refresh_token(identity=username, additional_claims={"role": user.role, "is_active": user.is_active})
         
@@ -46,7 +47,7 @@ def login():
         if not user.is_active:
             return jsonify(message="User is inactive"), 401
         
-        if not bcrypt.checkpw(password.encode('utf-8'), user.password):
+        if not bcrypt.checkpw(password.encode('utf-8'), hashed_password):
             return jsonify(message="Invalid username or password"), 401 
 
 @auth_blueprint.route('/change-password', methods=['PATCH'])
@@ -58,8 +59,9 @@ def change_password():
     new_password = data.get('new_password')
 
     user = User.query.filter_by(username=current_user).first()
+    hashed_password = user.password.encode('utf-8') if user and isinstance(user.password, str) else (user.password if user else None)
 
-    if user and bcrypt.checkpw(old_password.encode('utf-8'), user.password):
+    if user and bcrypt.checkpw(old_password.encode('utf-8'), hashed_password):
         user.password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
         db.session.commit()
         return jsonify(message="Password changed successfully"), 200
