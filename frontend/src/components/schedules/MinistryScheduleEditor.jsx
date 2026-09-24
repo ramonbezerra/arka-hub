@@ -68,8 +68,8 @@ const MinistryScheduleEditor = () => {
             setError('');
             const payload = {
                 ...values,
-                startsAt: datetimeLocalToIso(values.startsAt),
-                endsAt: datetimeLocalToIso(values.endsAt),
+                startsAt: new Date(values.startsAt).toISOString(),
+                endsAt: new Date(values.endsAt).toISOString(),
             };
             await axios.post(`/api/schedules/${scheduleId}/slots`, payload);
             setStatusMessage(t('Slot added'));
@@ -97,6 +97,17 @@ const MinistryScheduleEditor = () => {
             setError(err.response?.data?.message || t('Failed to assign volunteer'));
         }
         setSubmitting(false);
+    };
+
+    const handleRemoveAssignment = async (slotId, userId) => {
+        try {
+            setError('');
+            await axios.delete(`/api/schedules/slots/${slotId}/assignments/${userId}`);
+            setStatusMessage(t('Assignment removed'));
+            await loadSelectedSchedule(scheduleId);
+        } catch (err) {
+            setError(err.response?.data?.message || t('Failed to remove assignment'));
+        }
     };
 
     const handleSelectSlot = (id) => {
@@ -133,27 +144,47 @@ const MinistryScheduleEditor = () => {
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Title')}</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Role')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Start time')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('End time')}</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Assigners')}</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {selectedSchedule.slots.map((slot) => (
-                                    <tr key={slot.id}>
+                                    <tr key={slot?.id ?? Math.random()}>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            {slot.title}
+                                            {slot?.title || t('Untitled slot')}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            {slot.roleLabel}
+                                            {slot?.roleLabel || '-'}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {slot?.startsAt ? new Date(slot.startsAt).toLocaleTimeString() : '-'}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {slot?.endsAt ? new Date(slot.endsAt).toLocaleTimeString() : '-'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <ul>
-                                                {(slot.assignments || []).map((assignment) => (
-                                                    <li key={assignment.id}>
-                                                        <span className="font-medium">{assignment.username}</span>
-                                                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${assignment.status === 'assigned' ? 'bg-yellow-100 text-yellow-800' : assignment.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                                            {assignmentStatusLabel(assignment.status)}
+                                                {(slot?.assignments || []).map((assignment) => (
+                                                    <li key={assignment?.id ?? `${slot?.id ?? 'slot'}-${assignment?.username ?? 'unknown'}`}>
+                                                        <span className="font-medium">{assignment?.username || t('Unknown volunteer')}</span>
+                                                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${assignment?.status === 'assigned' ? 'bg-yellow-100 text-yellow-800' : assignment?.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                                            {assignmentStatusLabel(assignment?.status)}
                                                         </span>
+                                                        {assignment?.status === 'assigned' && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={async () => {
+                                                                    await handleRemoveAssignment(slot.id, assignment.userId);
+                                                                }}
+                                                                className="ml-2 text-red-500 hover:text-red-700"
+                                                                title={t('Remove assignment')}
+                                                            >
+                                                                <Icon icon="tabler:x" width={16} height={16} />
+                                                            </button>
+                                                        )}
                                                     </li>
                                                 ))}
                                             </ul>

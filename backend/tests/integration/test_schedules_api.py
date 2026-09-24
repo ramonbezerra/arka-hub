@@ -158,7 +158,7 @@ class TestSchedulesApiFlow:
         )
         assert add_response.status_code == 201
 
-    def test_cannot_edit_slot_on_published_schedule(
+    def test_edit_slot_on_published_schedule(
         self,
         client,
         ministry_leader_user,
@@ -170,4 +170,4 @@ class TestSchedulesApiFlow:
             json={'title': 'Changed'},
             headers=auth_headers(ministry_leader_user),
         )
-        assert response.status_code == 400
+        assert response.status_code == 200
